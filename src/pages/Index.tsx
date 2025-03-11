@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import FileList from '@/components/FileList';
 import VideoPlayer from '@/components/VideoPlayer';
-import { Folder, ArrowLeft } from 'lucide-react';
+import { Folder, ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { listS3Objects, getS3FileUrl, S3Item } from '@/utils/s3Client';
 

@@ -6,7 +6,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const S3_ENDPOINT = "https://q0w7.sg.idrivee2-43.com";
 const S3_ACCESS_KEY = "8OBl9ve6KBiLAdnIReel";
 const S3_SECRET_KEY = "RwoILuzZVKcRhtFfvXFSZqf6vHkPeF5eeWYvviy5";
-const BUCKET_NAME = "default"; // Change this if your bucket name is different
+const BUCKET_NAME = "bosuutap"; // Updated to the correct bucket name
 
 // Create S3 client
 export const s3Client = new S3Client({
