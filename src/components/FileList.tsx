@@ -2,15 +2,11 @@
 import React from 'react';
 import { File, Folder, FileVideo, FileImage, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { S3Item } from '@/utils/s3Client';
 
 interface FileListProps {
-  items: {
-    name: string;
-    type: 'folder' | 'file' | 'video' | 'image';
-    size?: string;
-    lastModified?: string;
-  }[];
-  onSelect: (item: any) => void;
+  items: S3Item[];
+  onSelect: (item: S3Item) => void;
 }
 
 const FileList = ({ items, onSelect }: FileListProps) => {
@@ -31,7 +27,7 @@ const FileList = ({ items, onSelect }: FileListProps) => {
     <div className="w-full">
       {items.map((item, index) => (
         <div
-          key={item.name}
+          key={item.key}
           onClick={() => onSelect(item)}
           className={cn(
             "flex items-center px-4 py-3 hover:bg-neutral-100 cursor-pointer rounded-lg transition-colors",
@@ -46,7 +42,10 @@ const FileList = ({ items, onSelect }: FileListProps) => {
           <div className="ml-3 flex-1">
             <p className="text-sm font-medium text-neutral-900">{item.name}</p>
             {item.size && (
-              <p className="text-xs text-neutral-500">{item.size}</p>
+              <p className="text-xs text-neutral-500">
+                {item.size}
+                {item.lastModified && ` · ${new Date(item.lastModified).toLocaleDateString()}`}
+              </p>
             )}
           </div>
           <ChevronRight className="w-4 h-4 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity" />
