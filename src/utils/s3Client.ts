@@ -1,4 +1,4 @@
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // S3 Configuration
@@ -126,5 +126,21 @@ export const getS3FileUrl = async (key: string): Promise<string> => {
   } catch (error) {
     console.error("Error getting presigned URL:", error);
     return "";
+  }
+};
+
+// Delete an object from S3
+export const deleteS3Object = async (key: string): Promise<boolean> => {
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+    
+    await s3Client.send(command);
+    return true;
+  } catch (error) {
+    console.error("Error deleting S3 object:", error);
+    return false;
   }
 };
