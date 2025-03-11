@@ -1,4 +1,3 @@
-
 import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -25,7 +24,8 @@ export interface S3Item {
   type: "folder" | "file" | "video" | "image";
   size?: string;
   lastModified?: string;
-  key: string; // Full S3 key
+  key: string;
+  url?: string; // Add URL for direct access
 }
 
 // Function to format bytes to human-readable format
@@ -68,7 +68,7 @@ export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
     const response = await s3Client.send(command);
     const items: S3Item[] = [];
     
-    // Add folders (common prefixes)
+    // Add folders
     if (response.CommonPrefixes) {
       for (const prefix of response.CommonPrefixes) {
         if (prefix.Prefix) {
@@ -85,20 +85,25 @@ export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
     // Add files
     if (response.Contents) {
       for (const content of response.Contents) {
-        // Skip the current directory
         if (content.Key === path) continue;
         
         const fileName = content.Key?.replace(path, "") || "";
-        // Skip empty files or folders already added
         if (!fileName || fileName.endsWith("/")) continue;
         
-        items.push({
+        const fileItem: S3Item = {
           name: fileName,
           type: getFileType(fileName),
           size: formatBytes(content.Size || 0),
           lastModified: content.LastModified?.toISOString(),
           key: content.Key || "",
-        });
+        };
+
+        // Generate pre-signed URL for the file
+        if (fileItem.type !== 'folder') {
+          fileItem.url = await getS3FileUrl(fileItem.key);
+        }
+
+        items.push(fileItem);
       }
     }
     
