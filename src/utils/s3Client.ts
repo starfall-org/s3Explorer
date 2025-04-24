@@ -10,7 +10,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const S3_ENDPOINT = import.meta.env.VITE_S3_ENDPOINT;
 const S3_ACCESS_KEY = import.meta.env.VITE_S3_ACCESS_KEY;
 const S3_SECRET_KEY = import.meta.env.VITE_S3_SECRET_KEY;
-const BUCKET_NAME = "bosuutap"; // Updated to the correct bucket name
+const BUCKET_NAME = import.meta.env.VITE_S3_BUCKET;
 
 // Create S3 client
 export const s3Client = new S3Client({
