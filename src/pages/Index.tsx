@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import FileList from '@/components/FileList';
 import VideoPlayer from '@/components/VideoPlayer';
+import CacheManager from '@/components/CacheManager';
 import { Folder, ArrowLeft, X, Upload, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { listS3Objects, getS3FileUrl, deleteS3Object, S3Item } from '@/utils/s3Client';
@@ -184,6 +185,11 @@ const Index = () => {
             )}
           </div>
         )}
+      </div>
+
+      {/* Cache Manager - positioned at bottom right */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <CacheManager />
       </div>
 
       {/* Video Player */}
