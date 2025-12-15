@@ -5,23 +5,31 @@ import {
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import Cookies from 'js-cookie';
 
-// S3 Configuration
-const S3_ENDPOINT = import.meta.env.VITE_S3_ENDPOINT;
-const S3_ACCESS_KEY = import.meta.env.VITE_S3_ACCESS_KEY;
-const S3_SECRET_KEY = import.meta.env.VITE_S3_SECRET_KEY;
-const BUCKET_NAME = import.meta.env.VITE_S3_BUCKET;
+// Function to get S3 client configuration from cookies
+const getS3Config = () => {
+  return {
+    endpoint: Cookies.get('s3Endpoint') || '',
+    accessKey: Cookies.get('s3Apikey') || '',
+    secretKey: Cookies.get('s3SecretKey') || '',
+    bucketName: Cookies.get('s3Bucket') || '',
+  };
+};
 
-// Create S3 client
-export const s3Client = new S3Client({
-  endpoint: S3_ENDPOINT,
-  region: "us-east-1", // This can be any value for custom S3 endpoints
-  credentials: {
-    accessKeyId: S3_ACCESS_KEY,
-    secretAccessKey: S3_SECRET_KEY,
-  },
-  forcePathStyle: true, // Required for some S3-compatible services
-});
+// Function to create S3 client
+const createS3Client = () => {
+  const config = getS3Config();
+  return new S3Client({
+    endpoint: config.endpoint,
+    region: "us-east-1", // This can be any value for custom S3 endpoints
+    credentials: {
+      accessKeyId: config.accessKey,
+      secretAccessKey: config.secretKey,
+    },
+    forcePathStyle: true, // Required for some S3-compatible services
+  });
+};
 
 // Interface for file/folder items
 export interface S3Item {
@@ -66,8 +74,10 @@ const getFileType = (
 // List objects in a specified path
 export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
   try {
+    const config = getS3Config();
+    const s3Client = createS3Client();
     const command = new ListObjectsV2Command({
-      Bucket: BUCKET_NAME,
+      Bucket: config.bucketName,
       Delimiter: "/",
       Prefix: path,
     });
@@ -124,8 +134,10 @@ export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
 // Get a presigned URL for a file
 export const getS3FileUrl = async (key: string): Promise<string> => {
   try {
+    const config = getS3Config();
+    const s3Client = createS3Client();
     const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: config.bucketName,
       Key: key,
     });
 
@@ -139,8 +151,10 @@ export const getS3FileUrl = async (key: string): Promise<string> => {
 // Delete an object from S3
 export const deleteS3Object = async (key: string): Promise<boolean> => {
   try {
+    const config = getS3Config();
+    const s3Client = createS3Client();
     const command = new DeleteObjectCommand({
-      Bucket: BUCKET_NAME,
+      Bucket: config.bucketName,
       Key: key,
     });
 
