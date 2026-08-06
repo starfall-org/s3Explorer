@@ -5,7 +5,8 @@ import VideoPlayer from '@/components/VideoPlayer';
 import AudioPlayer from '@/components/AudioPlayer';
 import TextViewer from '@/components/TextViewer';
 import CacheManager from '@/components/CacheManager';
-import { Folder, ArrowLeft, X, Upload, RefreshCw } from 'lucide-react';
+import SettingsDialog from '@/components/SettingsDialog';
+import { Folder, ArrowLeft, X, Upload, RefreshCw, Settings, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { listS3Objects, getS3FileUrl, deleteS3Object, S3Item } from '@/utils/s3Client';
 import { useToast } from '@/components/ui/use-toast';
@@ -22,6 +23,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<S3Item[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchItems = async () => {
@@ -34,7 +36,7 @@ const Index = () => {
       setItems(result);
     } catch (err) {
       console.error('Error fetching items:', err);
-      setError('Failed to load files. Please check your connection and try again.');
+      setError('Không thể kết nối tới S3. Vui lòng kiểm tra thông tin xác thực hoặc mạng của bạn.');
       setItems([]);
     } finally {
       setLoading(false);
@@ -191,13 +193,31 @@ const Index = () => {
               <RefreshCw className="w-4 h-4" />
               <span className="hidden sm:inline">Refresh</span>
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSettingsOpen(true)}
+              className="gap-1"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Cài đặt</span>
+            </Button>
           </div>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
-            {error}
+          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4 flex items-center justify-between gap-4 flex-wrap">
+            <span>{error}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Cài đặt kết nối
+            </Button>
           </div>
         )}
 
@@ -219,8 +239,24 @@ const Index = () => {
                 onDelete={handleDeleteItem}
               />
             ) : (
-              <div className="p-8 text-center">
-                <p className="text-neutral-500">No files found in this location.</p>
+              <div className="p-10 text-center">
+                <FolderOpen className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+                <p className="text-neutral-600 font-medium">
+                  Không tìm thấy tệp nào trong thư mục này.
+                </p>
+                <p className="text-sm text-neutral-400 mt-1 max-w-md mx-auto">
+                  Bucket có thể trống, hoặc thông tin kết nối hiện tại không chính
+                  xác. Hãy kiểm tra lại trong Cài đặt kết nối.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => setSettingsOpen(true)}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Mở Cài đặt kết nối
+                </Button>
               </div>
             )}
           </div>
@@ -231,6 +267,16 @@ const Index = () => {
       <div className="fixed bottom-4 right-4 z-40">
         <CacheManager />
       </div>
+
+      {/* Settings Dialog */}
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        onSaved={() => {
+          setSettingsOpen(false);
+          fetchItems();
+        }}
+      />
 
       {/* Video Player */}
       {selectedVideo && (

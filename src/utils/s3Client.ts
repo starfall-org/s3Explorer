@@ -7,8 +7,17 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Cookies from 'js-cookie';
 
+// S3 connection configuration
+// Can come from cookies (saved credentials) or be passed explicitly (e.g. from Settings)
+export interface S3Config {
+  endpoint: string;
+  accessKey: string;
+  secretKey: string;
+  bucketName: string;
+}
+
 // Function to get S3 client configuration from cookies
-const getS3Config = () => {
+const getS3Config = (): S3Config => {
   return {
     endpoint: Cookies.get('s3Endpoint') || '',
     accessKey: Cookies.get('s3Apikey') || '',
@@ -18,8 +27,7 @@ const getS3Config = () => {
 };
 
 // Function to create S3 client
-const createS3Client = () => {
-  const config = getS3Config();
+const createS3Client = (config: S3Config) => {
   return new S3Client({
     endpoint: config.endpoint,
     region: "us-east-1", // This can be any value for custom S3 endpoints
@@ -76,10 +84,14 @@ const getFileType = (
 };
 
 // List objects in a specified path
-export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
+// Pass an optional configOverride to list using credentials other than the saved cookies (e.g. connection test)
+export const listS3Objects = async (
+  path: string = "",
+  configOverride?: S3Config
+): Promise<S3Item[]> => {
   try {
-    const config = getS3Config();
-    const s3Client = createS3Client();
+    const config = configOverride ?? getS3Config();
+    const s3Client = createS3Client(config);
     const command = new ListObjectsV2Command({
       Bucket: config.bucketName,
       Delimiter: "/",
@@ -131,7 +143,7 @@ export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
     return items;
   } catch (error) {
     console.error("Error listing S3 objects:", error);
-    return [];
+    throw error; // Let the caller know the listing/connection failed
   }
 };
 
@@ -139,7 +151,7 @@ export const listS3Objects = async (path: string = ""): Promise<S3Item[]> => {
 export const getS3FileUrl = async (key: string): Promise<string> => {
   try {
     const config = getS3Config();
-    const s3Client = createS3Client();
+    const s3Client = createS3Client(config);
     const command = new GetObjectCommand({
       Bucket: config.bucketName,
       Key: key,
@@ -156,7 +168,7 @@ export const getS3FileUrl = async (key: string): Promise<string> => {
 export const deleteS3Object = async (key: string): Promise<boolean> => {
   try {
     const config = getS3Config();
-    const s3Client = createS3Client();
+    const s3Client = createS3Client(config);
     const command = new DeleteObjectCommand({
       Bucket: config.bucketName,
       Key: key,
