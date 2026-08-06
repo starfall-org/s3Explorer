@@ -7,11 +7,11 @@ import FileList from '@/components/FileList';
 import VideoPlayer from '@/components/VideoPlayer';
 import AudioPlayer from '@/components/AudioPlayer';
 import TextViewer from '@/components/TextViewer';
-import CacheManager from '@/components/CacheManager';
 import SettingsDialog from '@/components/SettingsDialog';
 import { Folder, ArrowLeft, X, Upload, RefreshCw, Settings, FolderOpen } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { listS3Objects, getS3FileUrl, deleteS3Object, S3Item } from '@/utils/s3Client';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -30,6 +30,10 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
+  const [isPlayerMinimized, setIsPlayerMinimized] = useState(false);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(-1);
+  const [videoAutoPlay, setVideoAutoPlay] = useState(false);
+  const [audioAutoPlay, setAudioAutoPlay] = useState(false);
   const { toast } = useToast();
 
   // Redirect to login if S3 credentials are not set
@@ -69,75 +73,57 @@ const Index = () => {
     }
   }, [currentPath, isAuthed]);
 
-  const handleFileSelect = async (item: S3Item) => {
+  const openMedia = async (item: S3Item, autoPlay = false) => {
+    let url = item.url;
+    if (!url) {
+      try {
+        url = await getS3FileUrl(item.key);
+      } catch (err) {
+        console.error('Error getting file URL:', err);
+        toast({
+          title: "Error",
+          description: "Failed to open file.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (item.type === 'video') {
+      setSelectedVideoName(item.name);
+      setSelectedVideo(url);
+      setVideoAutoPlay(autoPlay);
+    } else if (item.type === 'image') {
+      setSelectedImage(url);
+    } else if (item.type === 'audio') {
+      setSelectedAudioName(item.name);
+      setSelectedAudio(url);
+      setAudioAutoPlay(autoPlay);
+    } else if (item.type === 'text') {
+      setSelectedTextName(item.name);
+      setSelectedText(url);
+    }
+  };
+
+  const handleFileSelect = (item: S3Item) => {
     if (item.type === 'folder') {
       setCurrentPath([...currentPath, item.name]);
-    } else if (item.type === 'video') {
-      try {
-        setSelectedVideoName(item.name);
-        if (item.url) {
-          setSelectedVideo(item.url);
-        } else {
-          const url = await getS3FileUrl(item.key);
-          setSelectedVideo(url);
-        }
-      } catch (err) {
-        console.error('Error getting video URL:', err);
-        toast({
-          title: "Error",
-          description: "Failed to open video file.",
-          variant: "destructive",
-        });
-      }
-    } else if (item.type === 'image') {
-      try {
-        if (item.url) {
-          setSelectedImage(item.url);
-        } else {
-          const url = await getS3FileUrl(item.key);
-          setSelectedImage(url);
-        }
-      } catch (err) {
-        console.error('Error getting image URL:', err);
-        toast({
-          title: "Error",
-          description: "Failed to open image file.",
-          variant: "destructive",
-        });
-      }
-    } else if (item.type === 'audio') {
-      try {
-        setSelectedAudioName(item.name);
-        if (item.url) {
-          setSelectedAudio(item.url);
-        } else {
-          const url = await getS3FileUrl(item.key);
-          setSelectedAudio(url);
-        }
-      } catch (err) {
-        console.error('Error getting audio URL:', err);
-        toast({
-          title: "Error",
-          description: "Failed to open audio file.",
-          variant: "destructive",
-        });
-      }
-    } else if (item.type === 'text') {
-      try {
-        setSelectedTextName(item.name);
-        if (item.url) {
-          setSelectedText(item.url);
-        } else {
-          const url = await getS3FileUrl(item.key);
-          setSelectedText(url);
-        }
-      } catch (err) {
-        console.error('Error getting text URL:', err);
-        toast({
-          title: "Error",
-          description: "Failed to open text file.",
-          variant: "destructive",
-        });
+      return;
+    }
+    const idx = items.findIndex((i) => i.key === item.key);
+    if (idx >= 0) setCurrentMediaIndex(idx);
+    openMedia(item, false);
+  };
+
+  // Auto-play the next media item (video/audio) in the current folder when the current one ends
+  const playNext = () => {
+    if (currentMediaIndex < 0) return;
+    for (let i = currentMediaIndex + 1; i < items.length; i++) {
+      const it = items[i];
+      if (it.type === 'video' || it.type === 'audio') {
+        setCurrentMediaIndex(i);
+        openMedia(it, true);
+        return;
       }
     }
   };
@@ -183,7 +169,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className={cn("max-w-6xl mx-auto px-4 py-8", isPlayerMinimized && "pb-28")}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -286,11 +272,6 @@ const Index = () => {
         )}
       </div>
 
-      {/* Cache Manager - positioned at bottom right */}
-      <div className="fixed bottom-4 right-4 z-40">
-        <CacheManager />
-      </div>
-
       {/* Settings Dialog */}
       <SettingsDialog
         open={settingsOpen}
@@ -306,7 +287,13 @@ const Index = () => {
         <VideoPlayer
           url={selectedVideo}
           fileName={selectedVideoName}
-          onClose={() => setSelectedVideo(null)}
+          autoPlay={videoAutoPlay}
+          onEnded={playNext}
+          onMinimizeChange={setIsPlayerMinimized}
+          onClose={() => {
+            setSelectedVideo(null);
+            setIsPlayerMinimized(false);
+          }}
         />
       )}
 
@@ -315,7 +302,13 @@ const Index = () => {
         <AudioPlayer
           url={selectedAudio}
           fileName={selectedAudioName}
-          onClose={() => setSelectedAudio(null)}
+          autoPlay={audioAutoPlay}
+          onEnded={playNext}
+          onMinimizeChange={setIsPlayerMinimized}
+          onClose={() => {
+            setSelectedAudio(null);
+            setIsPlayerMinimized(false);
+          }}
         />
       )}
 

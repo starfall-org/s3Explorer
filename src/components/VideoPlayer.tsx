@@ -23,9 +23,12 @@ interface VideoPlayerProps {
   url: string;
   onClose: () => void;
   fileName?: string;
+  autoPlay?: boolean;
+  onEnded?: () => void;
+  onMinimizeChange?: (minimized: boolean) => void;
 }
 
-const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => {
+const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnded, onMinimizeChange }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -41,6 +44,21 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoPlayRef = useRef(autoPlay);
+  const onEndedRef = useRef(onEnded);
+
+  useEffect(() => {
+    autoPlayRef.current = autoPlay;
+  }, [autoPlay]);
+
+  useEffect(() => {
+    onEndedRef.current = onEnded;
+  }, [onEnded]);
+
+  // Notify parent when minimized state changes (so the page can avoid overlap)
+  useEffect(() => {
+    onMinimizeChange?.(isMinimized);
+  }, [isMinimized, onMinimizeChange]);
 
   // Format time in MM:SS format
   const formatTime = (seconds: number) => {
@@ -113,10 +131,14 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
     const handleLoadedData = () => {
       setIsLoading(false);
       setDuration(video.duration);
+      if (autoPlayRef.current) {
+        video.play().catch(() => {});
+      }
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
+      onEndedRef.current?.();
     };
 
     video.addEventListener('timeupdate', handleTimeUpdate);

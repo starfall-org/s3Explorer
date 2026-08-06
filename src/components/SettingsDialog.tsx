@@ -15,6 +15,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import CacheManager from '@/components/CacheManager';
 import {
   Server,
   Key,
@@ -115,13 +117,20 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            S3 Connection Settings
+            Settings
           </DialogTitle>
           <DialogDescription>
-            View and manage the S3 credentials saved in your browser.
+            Manage your S3 connection and media cache.
           </DialogDescription>
         </DialogHeader>
 
+        <Tabs defaultValue="connection">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="connection">Connection</TabsTrigger>
+            <TabsTrigger value="cache">Media Cache</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="connection" className="space-y-4 pt-4">
         <form onSubmit={handleSave} className="space-y-4">
           <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
             <ConnectionModeSelector value={mode} onChange={setMode} />
@@ -218,7 +227,7 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
           </DialogFooter>
         </form>
 
-        <div className="border-t pt-4 mt-2">
+        <div className="border-t pt-4">
           <Button
             variant="ghost"
             className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -228,6 +237,12 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
             Log Out / Clear Saved Info
           </Button>
         </div>
+          </TabsContent>
+
+          <TabsContent value="cache" className="pt-4">
+            <CacheManager />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

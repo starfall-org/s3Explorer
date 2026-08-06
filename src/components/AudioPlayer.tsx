@@ -23,9 +23,12 @@ interface AudioPlayerProps {
   url: string;
   onClose: () => void;
   fileName?: string;
+  autoPlay?: boolean;
+  onEnded?: () => void;
+  onMinimizeChange?: (minimized: boolean) => void;
 }
 
-const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => {
+const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnded, onMinimizeChange }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -37,6 +40,21 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
   const [audioUrl, setAudioUrl] = useState<string>(url);
   const [minimized, setMinimized] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const autoPlayRef = useRef(autoPlay);
+  const onEndedRef = useRef(onEnded);
+
+  useEffect(() => {
+    autoPlayRef.current = autoPlay;
+  }, [autoPlay]);
+
+  useEffect(() => {
+    onEndedRef.current = onEnded;
+  }, [onEnded]);
+
+  // Notify parent when minimized state changes (so the page can avoid overlap)
+  useEffect(() => {
+    onMinimizeChange?.(minimized);
+  }, [minimized, onMinimizeChange]);
 
   const formatTime = (seconds: number) => {
     if (!isFinite(seconds) || isNaN(seconds)) return '00:00';
@@ -103,9 +121,15 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
     const handleLoadedData = () => {
       setIsLoading(false);
       setDuration(audio.duration);
+      if (autoPlayRef.current) {
+        audio.play().catch(() => {});
+      }
     };
     const handleDurationChange = () => setDuration(audio.duration);
-    const handleEnded = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      onEndedRef.current?.();
+    };
     const handleError = () => setIsLoading(false);
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
