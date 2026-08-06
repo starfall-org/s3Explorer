@@ -8,6 +8,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { S3Config, S3Item, getFileType, formatBytes } from '@/utils/s3Types';
 
 export function createS3Client(config: S3Config) {
@@ -135,4 +136,17 @@ export async function putS3Object(
     ...(contentType ? { ContentType: contentType } : {}),
   });
   await s3Client.send(command);
+}
+
+export async function presignS3Object(
+  config: S3Config,
+  key: string,
+  expiresIn: number = 604800
+): Promise<string> {
+  const s3Client = createS3Client(config);
+  const command = new GetObjectCommand({
+    Bucket: config.bucketName,
+    Key: key,
+  });
+  return await getSignedUrl(s3Client, command, { expiresIn });
 }

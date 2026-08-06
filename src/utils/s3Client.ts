@@ -56,14 +56,15 @@ const buildProxyUrl = (key: string): string => {
 // Generate a pre-signed URL using the browser SDK (browser connection mode)
 const getPresignedUrl = async (
   config: S3Config,
-  key: string
+  key: string,
+  expiresIn: number = 3600
 ): Promise<string> => {
   const s3Client = createS3Client(config);
   const command = new GetObjectCommand({
     Bucket: config.bucketName,
     Key: key,
   });
-  return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+  return await getSignedUrl(s3Client, command, { expiresIn }); // URL expires after `expiresIn` seconds
 };
 
 // Server mode: list objects through the Next.js API route
@@ -221,6 +222,41 @@ export const getS3FileUrl = async (
   } catch (error) {
     console.error("Error getting presigned URL:", error);
     return "";
+  }
+};
+
+// Generate a shareable pre-signed URL valid for 7 days (604800 seconds)
+// - Server mode: presigned via the /api/s3/presign route (no CORS required)
+// - Browser mode: presigned directly with the AWS SDK
+// Returns '' if generation fails.
+export const getShareUrl = async (
+  key: string,
+  modeOverride?: ConnectionMode
+): Promise<string> => {
+  const mode = modeOverride ?? getConnectionMode();
+
+  if (mode === 'server') {
+    try {
+      const response = await fetch('/api/s3/presign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key }),
+      });
+      if (!response.ok) return '';
+      const data = await response.json();
+      return (data.url as string) ?? '';
+    } catch (error) {
+      console.error('Error generating share link (server):', error);
+      return '';
+    }
+  }
+
+  try {
+    const config = getS3Config();
+    return await getPresignedUrl(config, key, 604800); // 7 days
+  } catch (error) {
+    console.error('Error generating share link:', error);
+    return '';
   }
 };
 

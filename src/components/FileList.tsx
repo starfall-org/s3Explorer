@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { File, Folder, FileVideo, FileImage, FileAudio, FileText, ChevronRight, MoreVertical, Download, ExternalLink, Trash2, Info, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { S3Item } from '@/utils/s3Client';
+import { S3Item, getShareUrl } from '@/utils/s3Client';
+import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -42,6 +43,7 @@ interface FileListProps {
 const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
   const [infoItem, setInfoItem] = useState<S3Item | null>(null);
   const [deleteItem, setDeleteItem] = useState<S3Item | null>(null);
+  const { toast } = useToast();
   
   const getIcon = (type: string) => {
     switch (type) {
@@ -78,15 +80,30 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
     }
   };
 
-  const copyShareLink = async (e: React.MouseEvent, item: S3Item) => {
+  const handleShare = async (e: React.MouseEvent, item: S3Item) => {
     e.stopPropagation();
-    if (item.url) {
-      try {
-        await navigator.clipboard.writeText(item.url);
-        alert('Link copied to clipboard!');
-      } catch (err) {
-        console.error('Failed to copy link:', err);
+    try {
+      const shareUrl = await getShareUrl(item.key);
+      if (!shareUrl) {
+        toast({
+          title: 'Error',
+          description: 'Could not generate a share link.',
+          variant: 'destructive',
+        });
+        return;
       }
+      await navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: 'Share link copied',
+        description: 'The link is valid for 7 days.',
+      });
+    } catch (err) {
+      console.error('Failed to generate/copy share link:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to create share link.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -156,9 +173,9 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
                     Open in new tab
                   </DropdownMenuItem>
                   
-                  <DropdownMenuItem onClick={(e) => copyShareLink(e, item)}>
+                  <DropdownMenuItem onClick={(e) => handleShare(e, item)}>
                     <Share2 className="w-4 h-4 mr-2" />
-                    Copy link
+                    Share link
                   </DropdownMenuItem>
                   
                   <DropdownMenuItem 
