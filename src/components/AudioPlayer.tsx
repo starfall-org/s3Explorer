@@ -235,15 +235,26 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
               <span>Streaming</span>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setMinimized(true)}
-            aria-label="Minimize player"
-          >
-            <ChevronDown className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => setMinimized(true)}
+              aria-label="Minimize player"
+            >
+              <ChevronDown className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10"
+              onClick={onClose}
+              aria-label="Close player"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Artwork / icon */}
@@ -315,7 +326,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-10 w-10"
               onClick={toggleMute}
               aria-label="Toggle mute"
             >
@@ -340,7 +351,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-10 w-10"
               onClick={handleShareLink}
               aria-label="Copy link"
             >
@@ -349,7 +360,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-10 w-10"
               onClick={handleDownload}
               aria-label="Download"
             >
@@ -363,7 +374,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
       )}
 
       {minimized && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(92vw,640px)] rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(92vw,640px)] rounded-xl border border-border bg-card/80 backdrop-blur-xl shadow-2xl overflow-hidden">
           <div className="h-1 bg-muted">
             <div
               className="h-full bg-primary transition-all"

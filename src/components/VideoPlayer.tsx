@@ -284,7 +284,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
       className={cn(
         "fixed z-50 overflow-hidden transition-all duration-300",
         isMinimized
-          ? "bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] rounded-xl border border-border bg-card shadow-2xl"
+          ? "bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] rounded-xl border border-border bg-card/80 backdrop-blur-xl shadow-2xl"
           : "inset-0 bg-black/90 flex items-center justify-center"
       )}
       onMouseMove={() => {
@@ -326,18 +326,32 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
         {/* Fullscreen overlays */}
         {!isMinimized && (
           <>
-            {/* Close (minimize) button */}
-            <Button
-              variant="ghost"
-              size="icon"
+            {/* Top-right actions: minimize + close */}
+            <div
               className={cn(
-                "absolute top-4 right-4 text-white hover:bg-white/20 transition-opacity z-10",
+                "absolute top-4 right-4 flex items-center gap-2 transition-opacity z-10",
                 showControls ? "opacity-100" : "opacity-0"
               )}
-              onClick={() => setIsMinimized(true)}
             >
-              <ChevronDown className="w-6 h-6" />
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 bg-black/50 text-white hover:bg-white/20"
+                onClick={() => setIsMinimized(true)}
+                aria-label="Minimize player"
+              >
+                <ChevronDown className="w-6 h-6" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 bg-black/50 text-white hover:bg-white/20"
+                onClick={onClose}
+                aria-label="Close player"
+              >
+                <X className="w-6 h-6" />
+              </Button>
+            </div>
 
             {/* File name */}
             <div
@@ -370,7 +384,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
             {/* Video controls */}
             <div 
               className={cn(
-                "absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent transition-opacity",
+                "absolute bottom-0 left-0 right-0 pt-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-black/80 to-transparent transition-opacity",
                 showControls ? "opacity-100" : "opacity-0"
               )}
             >
