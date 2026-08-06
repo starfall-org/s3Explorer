@@ -31,6 +31,7 @@ const Index = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isAuthed, setIsAuthed] = useState(false);
   const [isPlayerMinimized, setIsPlayerMinimized] = useState(false);
+  const [isMediaPlaying, setIsMediaPlaying] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(-1);
   const [videoAutoPlay, setVideoAutoPlay] = useState(false);
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
@@ -116,6 +117,7 @@ const Index = () => {
       setVideoAutoPlay(autoPlay);
     } else if (item.type === 'image') {
       setSelectedImage(url);
+      setIsMediaPlaying(false);
     } else if (item.type === 'audio') {
       setSelectedAudioName(item.name);
       setSelectedAudio(url);
@@ -123,6 +125,7 @@ const Index = () => {
     } else if (item.type === 'text') {
       setSelectedTextName(item.name);
       setSelectedText(url);
+      setIsMediaPlaying(false);
     }
   };
 
@@ -133,7 +136,8 @@ const Index = () => {
     }
     const idx = items.findIndex((i) => i.key === item.key);
     if (idx >= 0) setCurrentMediaIndex(idx);
-    openMedia(item, false);
+    // If a minimized player is currently playing, keep playing the next file
+    openMedia(item, isPlayerMinimized && isMediaPlaying);
   };
 
   // Auto-play the next media item (video/audio) in the current folder when the current one ends
@@ -396,9 +400,11 @@ const Index = () => {
           autoPlay={videoAutoPlay}
           onEnded={playNext}
           onMinimizeChange={setIsPlayerMinimized}
+          onPlayingChange={setIsMediaPlaying}
           onClose={() => {
             setSelectedVideo(null);
             setIsPlayerMinimized(false);
+            setIsMediaPlaying(false);
           }}
         />
       )}
@@ -411,9 +417,11 @@ const Index = () => {
           autoPlay={audioAutoPlay}
           onEnded={playNext}
           onMinimizeChange={setIsPlayerMinimized}
+          onPlayingChange={setIsMediaPlaying}
           onClose={() => {
             setSelectedAudio(null);
             setIsPlayerMinimized(false);
+            setIsMediaPlaying(false);
           }}
         />
       )}

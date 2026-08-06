@@ -26,9 +26,10 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   onEnded?: () => void;
   onMinimizeChange?: (minimized: boolean) => void;
+  onPlayingChange?: (playing: boolean) => void;
 }
 
-const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnded, onMinimizeChange }: VideoPlayerProps) => {
+const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnded, onMinimizeChange, onPlayingChange }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -46,6 +47,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
   const controlsTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autoPlayRef = useRef(autoPlay);
   const onEndedRef = useRef(onEnded);
+  const onPlayingChangeRef = useRef(onPlayingChange);
 
   useEffect(() => {
     autoPlayRef.current = autoPlay;
@@ -54,6 +56,10 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
   useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
+
+  useEffect(() => {
+    onPlayingChangeRef.current = onPlayingChange;
+  }, [onPlayingChange]);
 
   // Notify parent when minimized state changes (so the page can avoid overlap)
   useEffect(() => {
@@ -136,6 +142,16 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
       }
     };
 
+    const handlePlay = () => {
+      setIsPlaying(true);
+      onPlayingChangeRef.current?.(true);
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
+      onPlayingChangeRef.current?.(false);
+    };
+
     const handleEnded = () => {
       setIsPlaying(false);
       onEndedRef.current?.();
@@ -144,12 +160,16 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('durationchange', handleDurationChange);
     video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
     video.addEventListener('ended', handleEnded);
 
     return () => {
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('durationchange', handleDurationChange);
       video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
       video.removeEventListener('ended', handleEnded);
     };
   }, []);

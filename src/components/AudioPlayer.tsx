@@ -26,9 +26,10 @@ interface AudioPlayerProps {
   autoPlay?: boolean;
   onEnded?: () => void;
   onMinimizeChange?: (minimized: boolean) => void;
+  onPlayingChange?: (playing: boolean) => void;
 }
 
-const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnded, onMinimizeChange }: AudioPlayerProps) => {
+const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnded, onMinimizeChange, onPlayingChange }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -42,6 +43,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
   const audioRef = useRef<HTMLAudioElement>(null);
   const autoPlayRef = useRef(autoPlay);
   const onEndedRef = useRef(onEnded);
+  const onPlayingChangeRef = useRef(onPlayingChange);
 
   useEffect(() => {
     autoPlayRef.current = autoPlay;
@@ -50,6 +52,10 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
   useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
+
+  useEffect(() => {
+    onPlayingChangeRef.current = onPlayingChange;
+  }, [onPlayingChange]);
 
   // Notify parent when minimized state changes (so the page can avoid overlap)
   useEffect(() => {
@@ -126,6 +132,14 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
       }
     };
     const handleDurationChange = () => setDuration(audio.duration);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      onPlayingChangeRef.current?.(true);
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      onPlayingChangeRef.current?.(false);
+    };
     const handleEnded = () => {
       setIsPlaying(false);
       onEndedRef.current?.();
@@ -135,6 +149,8 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadeddata', handleLoadedData);
     audio.addEventListener('durationchange', handleDurationChange);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
@@ -142,6 +158,8 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadeddata', handleLoadedData);
       audio.removeEventListener('durationchange', handleDurationChange);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
     };
