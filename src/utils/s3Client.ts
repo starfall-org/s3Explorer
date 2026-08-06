@@ -34,7 +34,7 @@ const createS3Client = () => {
 // Interface for file/folder items
 export interface S3Item {
   name: string;
-  type: "folder" | "file" | "video" | "image";
+  type: "folder" | "file" | "video" | "image" | "audio" | "text";
   size?: string;
   lastModified?: string;
   key: string;
@@ -57,15 +57,19 @@ const formatBytes = (bytes: number, decimals = 2) => {
 // Function to determine file type
 const getFileType = (
   fileName: string
-): "folder" | "file" | "video" | "image" => {
+): "folder" | "file" | "video" | "image" | "audio" | "text" => {
   const ext = fileName.split(".").pop()?.toLowerCase() || "";
 
   if (!ext) return "folder";
 
-  if (["mp4", "webm", "mov", "avi", "mkv"].includes(ext)) {
+  if (["mp4", "webm", "mov", "avi", "mkv", "m4v", "wmv", "flv", "3gp", "ts"].includes(ext)) {
     return "video";
-  } else if (["jpg", "jpeg", "png", "gif", "svg", "webp"].includes(ext)) {
+  } else if (["jpg", "jpeg", "png", "gif", "svg", "webp", "bmp", "ico", "avif", "tiff"].includes(ext)) {
     return "image";
+  } else if (["mp3", "wav", "ogg", "oga", "m4a", "aac", "flac", "opus", "wma", "mid", "midi", "weba"].includes(ext)) {
+    return "audio";
+  } else if (["txt", "md", "markdown", "json", "js", "mjs", "cjs", "ts", "tsx", "jsx", "css", "scss", "less", "html", "htm", "xml", "csv", "log", "py", "java", "c", "h", "cpp", "hpp", "cs", "go", "rs", "rb", "php", "sh", "bash", "yml", "yaml", "toml", "ini", "cfg", "conf", "env", "sql", "vue", "svelte", "astro"].includes(ext)) {
+    return "text";
   } else {
     return "file";
   }

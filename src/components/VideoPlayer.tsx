@@ -17,7 +17,7 @@ import {
   Download as CacheIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { videoCache } from '@/utils/videoCache';
+import { mediaCache } from '@/utils/videoCache';
 
 interface VideoPlayerProps {
   url: string;
@@ -58,7 +58,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
     const loadVideo = async () => {
       setIsLoading(true);
       try {
-        const cached = await videoCache.getCachedVideo(url);
+        const cached = await mediaCache.getCachedVideo(url);
         if (cached) {
           setVideoUrl(cached);
           setIsCached(true);
@@ -86,7 +86,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
           setIsCaching(true);
           const response = await fetch(url);
           const blob = await response.blob();
-          await videoCache.cacheVideo(url, blob);
+          await mediaCache.cacheVideo(url, blob);
           setIsCached(true);
           console.log('Video cached successfully:', fileName);
         } catch (error) {

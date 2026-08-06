@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Database, Download } from 'lucide-react';
-import { videoCache } from '@/utils/videoCache';
+import { mediaCache } from '@/utils/videoCache';
 
 const CacheManager = () => {
   const [cacheStats, setCacheStats] = useState({ count: 0, size: '0 MB' });
@@ -11,7 +11,7 @@ const CacheManager = () => {
 
   const loadCacheStats = async () => {
     try {
-      const stats = await videoCache.getCacheStats();
+      const stats = await mediaCache.getCacheStats();
       setCacheStats(stats);
     } catch (error) {
       console.error('Failed to load cache stats:', error);
@@ -19,10 +19,10 @@ const CacheManager = () => {
   };
 
   const clearCache = async () => {
-    if (window.confirm('Are you sure you want to clear all cached videos? This will remove all downloaded videos from your browser storage.')) {
+    if (window.confirm('Are you sure you want to clear the media cache? This will remove all cached videos and audio from your browser storage.')) {
       setIsLoading(true);
       try {
-        await videoCache.clearCache();
+        await mediaCache.clearCache();
         await loadCacheStats();
         alert('Cache cleared successfully!');
       } catch (error) {
@@ -54,17 +54,17 @@ const CacheManager = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Database className="w-5 h-5" />
-          Video Cache
+          Media Cache
         </CardTitle>
         <CardDescription>
-          Videos are cached for faster playback and offline viewing
+          Videos and audio are cached for faster playback and offline viewing
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Cached Videos</span>
+              <span className="text-sm font-medium">Cached Files</span>
               <Badge variant="secondary">{cacheStats.count}</Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -92,9 +92,9 @@ const CacheManager = () => {
         </div>
         
         <div className="text-xs text-muted-foreground">
-          <p>• Videos are automatically cached when played</p>
+          <p>• Videos and audio are automatically cached when played</p>
           <p>• Cache is limited to 500MB and 7 days</p>
-          <p>• Old videos are removed automatically</p>
+          <p>• Old files are removed automatically</p>
         </div>
       </CardContent>
     </Card>

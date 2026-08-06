@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import FileList from '@/components/FileList';
 import VideoPlayer from '@/components/VideoPlayer';
+import AudioPlayer from '@/components/AudioPlayer';
+import TextViewer from '@/components/TextViewer';
 import CacheManager from '@/components/CacheManager';
 import { Folder, ArrowLeft, X, Upload, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +15,10 @@ const Index = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [selectedVideoName, setSelectedVideoName] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedAudio, setSelectedAudio] = useState<string | null>(null);
+  const [selectedAudioName, setSelectedAudioName] = useState<string>('');
+  const [selectedText, setSelectedText] = useState<string | null>(null);
+  const [selectedTextName, setSelectedTextName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<S3Item[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +78,40 @@ const Index = () => {
         toast({
           title: "Error",
           description: "Failed to open image file.",
+          variant: "destructive",
+        });
+      }
+    } else if (item.type === 'audio') {
+      try {
+        setSelectedAudioName(item.name);
+        if (item.url) {
+          setSelectedAudio(item.url);
+        } else {
+          const url = await getS3FileUrl(item.key);
+          setSelectedAudio(url);
+        }
+      } catch (err) {
+        console.error('Error getting audio URL:', err);
+        toast({
+          title: "Error",
+          description: "Failed to open audio file.",
+          variant: "destructive",
+        });
+      }
+    } else if (item.type === 'text') {
+      try {
+        setSelectedTextName(item.name);
+        if (item.url) {
+          setSelectedText(item.url);
+        } else {
+          const url = await getS3FileUrl(item.key);
+          setSelectedText(url);
+        }
+      } catch (err) {
+        console.error('Error getting text URL:', err);
+        toast({
+          title: "Error",
+          description: "Failed to open text file.",
           variant: "destructive",
         });
       }
@@ -198,6 +238,24 @@ const Index = () => {
           url={selectedVideo}
           fileName={selectedVideoName}
           onClose={() => setSelectedVideo(null)}
+        />
+      )}
+
+      {/* Audio Player */}
+      {selectedAudio && (
+        <AudioPlayer
+          url={selectedAudio}
+          fileName={selectedAudioName}
+          onClose={() => setSelectedAudio(null)}
+        />
+      )}
+
+      {/* Text Viewer */}
+      {selectedText && (
+        <TextViewer
+          url={selectedText}
+          fileName={selectedTextName}
+          onClose={() => setSelectedText(null)}
         />
       )}
 

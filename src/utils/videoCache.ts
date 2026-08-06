@@ -5,7 +5,7 @@ interface CacheEntry {
   size: number;
 }
 
-class VideoCacheManager {
+class MediaCacheManager {
   private cacheName = 's3explorer-video-cache';
   private maxCacheSize = 500 * 1024 * 1024; // 500MB limit
   private maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -188,4 +188,4 @@ class VideoCacheManager {
   }
 }
 
-export const videoCache = new VideoCacheManager();
+export const mediaCache = new MediaCacheManager();

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { File, Folder, FileVideo, FileImage, ChevronRight, Download, ExternalLink, Trash2, Info, Share2 } from 'lucide-react';
+import { File, Folder, FileVideo, FileImage, FileAudio, FileText, ChevronRight, Download, ExternalLink, Trash2, Info, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { S3Item } from '@/utils/s3Client';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,10 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
         return <FileVideo className="w-5 h-5 text-primary" />;
       case 'image':
         return <FileImage className="w-5 h-5 text-primary" />;
+      case 'audio':
+        return <FileAudio className="w-5 h-5 text-primary" />;
+      case 'text':
+        return <FileText className="w-5 h-5 text-primary" />;
       default:
         return <File className="w-5 h-5 text-primary" />;
     }

@@ -136,7 +136,10 @@ src/
 ├── components/          # Reusable UI components
 │   ├── ui/             # shadcn/ui components
 │   ├── FileList.tsx    # File listing component
-│   └── VideoPlayer.tsx # Video player component
+│   ├── VideoPlayer.tsx # Video player component
+│   ├── AudioPlayer.tsx # Audio/music player component
+│   ├── TextViewer.tsx  # Text file viewer component
+│   └── CacheManager.tsx # Media cache manager
 ├── pages/              # Page components
 │   ├── Index.tsx       # Main file browser
 │   ├── Login.tsx       # Authentication page
