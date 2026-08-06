@@ -123,6 +123,10 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
         </DialogHeader>
 
         <form onSubmit={handleSave} className="space-y-4">
+          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+            <ConnectionModeSelector value={mode} onChange={setMode} />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="settings-endpoint" className="flex items-center gap-2">
               <Server className="h-4 w-4" />
@@ -189,8 +193,6 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
               onChange={(e) => setBucket(e.target.value)}
             />
           </div>
-
-          <ConnectionModeSelector value={mode} onChange={setMode} />
 
           {testResult && (
             <Alert variant={testResult.ok ? 'default' : 'destructive'}>
