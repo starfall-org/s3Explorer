@@ -76,6 +76,18 @@ const Index = () => {
     }
   }, [currentPath, isAuthed]);
 
+  // Show the currently playing audio/video file name in the page title
+  useEffect(() => {
+    const playingName = selectedVideo
+      ? selectedVideoName
+      : selectedAudio
+        ? selectedAudioName
+        : '';
+    document.title = playingName
+      ? `${playingName} - Bộ Sưu Tập`
+      : 'Bộ Sưu Tập';
+  }, [selectedVideo, selectedVideoName, selectedAudio, selectedAudioName]);
+
   const openMedia = async (item: S3Item, autoPlay = false) => {
     let url = item.url;
     if (!url) {
@@ -91,6 +103,12 @@ const Index = () => {
         return;
       }
     }
+
+    // Close any other open viewer/player so they replace each other
+    setSelectedImage(null);
+    setSelectedText(null);
+    if (item.type !== 'video') setSelectedVideo(null);
+    if (item.type !== 'audio') setSelectedAudio(null);
 
     if (item.type === 'video') {
       setSelectedVideoName(item.name);
