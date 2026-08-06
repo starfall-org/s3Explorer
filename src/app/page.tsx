@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import FileList from '@/components/FileList';
@@ -8,11 +8,11 @@ import VideoPlayer from '@/components/VideoPlayer';
 import AudioPlayer from '@/components/AudioPlayer';
 import TextViewer from '@/components/TextViewer';
 import SettingsDialog from '@/components/SettingsDialog';
-import { Folder, ArrowLeft, X, Upload, RefreshCw, Settings, FolderOpen } from 'lucide-react';
+import { Folder, ArrowLeft, X, Upload, RefreshCw, Settings, FolderOpen, Loader2 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { listS3Objects, getS3FileUrl, deleteS3Object, S3Item } from '@/utils/s3Client';
+import { listS3Objects, getS3FileUrl, deleteS3Object, uploadS3Object, S3Item } from '@/utils/s3Client';
 import { useToast } from '@/components/ui/use-toast';
 
 const Index = () => {
@@ -34,6 +34,9 @@ const Index = () => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(-1);
   const [videoAutoPlay, setVideoAutoPlay] = useState(false);
   const [audioAutoPlay, setAudioAutoPlay] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Redirect to login if S3 credentials are not set
@@ -162,6 +165,51 @@ const Index = () => {
     fetchItems();
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ''; // allow re-selecting the same file
+    if (files.length === 0) return;
+
+    const path = currentPath.join('/');
+    const prefix = path ? `${path}/` : '';
+    setUploading(true);
+    setUploadProgress({ done: 0, total: files.length });
+
+    let okCount = 0;
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress({ done: i, total: files.length });
+      const ok = await uploadS3Object(files[i], prefix);
+      if (ok) okCount++;
+    }
+
+    setUploading(false);
+    setUploadProgress(null);
+
+    if (okCount === files.length) {
+      toast({
+        title: 'Success',
+        description: `Uploaded ${okCount} file${okCount === 1 ? '' : 's'}.`,
+      });
+    } else if (okCount > 0) {
+      toast({
+        title: 'Partial upload',
+        description: `${okCount}/${files.length} files uploaded. The rest failed.`,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Upload failed. Please check the connection and try again.',
+        variant: 'destructive',
+      });
+    }
+    fetchItems();
+  };
+
   const getCurrentPathDisplay = () => {
     if (currentPath.length === 0) return 'My Files';
     return currentPath.join(' / ');
@@ -169,6 +217,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Hidden file input for batch uploads */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={handleFilesSelected}
+      />
       <div className={cn("max-w-6xl mx-auto px-4 py-8", isPlayerMinimized && "pb-28")}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -196,6 +252,20 @@ const Index = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={handleUploadClick}
+              disabled={uploading}
+              className="gap-1"
+            >
+              {uploading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">{uploading ? 'Uploading…' : 'Upload'}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={refreshList}
               className="gap-1"
             >
@@ -213,6 +283,24 @@ const Index = () => {
             </Button>
           </div>
         </div>
+
+        {/* Upload progress */}
+        {uploading && uploadProgress && (
+          <div className="mb-4 bg-card rounded-xl shadow-sm border border-border p-4 flex items-center gap-4">
+            <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                Uploading files... ({uploadProgress.done}/{uploadProgress.total})
+              </p>
+              <div className="mt-2 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${(uploadProgress.done / uploadProgress.total) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error message */}
         {error && (

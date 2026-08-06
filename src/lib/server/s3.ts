@@ -6,6 +6,7 @@ import {
   ListObjectsV2Command,
   DeleteObjectCommand,
   GetObjectCommand,
+  PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import { S3Config, S3Item, getFileType, formatBytes } from '@/utils/s3Types';
 
@@ -118,4 +119,20 @@ export async function getS3Object(config: S3Config, key: string, range?: string)
     ...(range ? { Range: range } : {}),
   });
   return s3Client.send(command);
+}
+
+export async function putS3Object(
+  config: S3Config,
+  key: string,
+  body: Buffer | Uint8Array,
+  contentType?: string
+): Promise<void> {
+  const s3Client = createS3Client(config);
+  const command = new PutObjectCommand({
+    Bucket: config.bucketName,
+    Key: key,
+    Body: body,
+    ...(contentType ? { ContentType: contentType } : {}),
+  });
+  await s3Client.send(command);
 }
