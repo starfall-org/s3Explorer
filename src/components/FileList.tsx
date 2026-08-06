@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { File, Folder, FileVideo, FileImage, FileAudio, FileText, ChevronRight, MoreHorizontal, Download, ExternalLink, Trash2, Info, Share2 } from 'lucide-react';
+import { File, Folder, FileVideo, FileImage, FileAudio, FileText, ChevronRight, MoreVertical, Download, ExternalLink, Trash2, Info, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { S3Item } from '@/utils/s3Client';
 import { Button } from '@/components/ui/button';
@@ -137,7 +137,7 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
                     className="h-8 w-8"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                    <MoreVertical className="w-4 h-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
