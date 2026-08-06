@@ -1,9 +1,0 @@
-{
-  "/_global-error/page": "/_global-error",
-  "/_not-found/page": "/_not-found",
-  "/api/s3/delete/route": "/api/s3/delete",
-  "/api/s3/list/route": "/api/s3/list",
-  "/api/s3/proxy/route": "/api/s3/proxy",
-  "/login/page": "/login",
-  "/page": "/"
-}
