@@ -10,6 +10,7 @@ import TextViewer from '@/components/TextViewer';
 import CacheManager from '@/components/CacheManager';
 import SettingsDialog from '@/components/SettingsDialog';
 import { Folder, ArrowLeft, X, Upload, RefreshCw, Settings, FolderOpen } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { listS3Objects, getS3FileUrl, deleteS3Object, S3Item } from '@/utils/s3Client';
 import { useToast } from '@/components/ui/use-toast';
@@ -55,7 +56,7 @@ const Index = () => {
       setItems(result);
     } catch (err) {
       console.error('Error fetching items:', err);
-      setError('Không thể kết nối tới S3. Vui lòng kiểm tra thông tin xác thực hoặc mạng của bạn.');
+      setError('Could not connect to S3. Please check your credentials or network.');
       setItems([]);
     } finally {
       setLoading(false);
@@ -181,7 +182,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -191,20 +192,21 @@ const Index = () => {
                 variant="ghost"
                 size="icon"
                 onClick={navigateBack}
-                className="hover:bg-neutral-200"
+                className="hover:bg-muted"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             )}
             <div className="flex items-center space-x-2">
               <Folder className="w-6 h-6 text-primary" />
-              <h1 className="text-2xl font-semibold text-neutral-900 truncate">
+              <h1 className="text-2xl font-semibold text-foreground truncate">
                 {getCurrentPathDisplay()}
               </h1>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button
               variant="outline"
               size="sm"
@@ -221,38 +223,38 @@ const Index = () => {
               className="gap-1"
             >
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Cài đặt</span>
+              <span className="hidden sm:inline">Settings</span>
             </Button>
           </div>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-200 p-4 rounded-lg mb-4 flex items-center justify-between gap-4 flex-wrap">
             <span>{error}</span>
             <Button
               variant="outline"
               size="sm"
-              className="bg-white"
+              className="bg-background"
               onClick={() => setSettingsOpen(true)}
             >
               <Settings className="w-4 h-4 mr-2" />
-              Cài đặt kết nối
+              Connection settings
             </Button>
           </div>
         )}
 
         {/* Loading state */}
         {loading ? (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-8 text-center">
+          <div className="bg-card rounded-xl shadow-sm border border-border p-8 text-center">
             <div className="flex justify-center mb-4">
               <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <p className="text-neutral-500">Loading files...</p>
+            <p className="text-muted-foreground">Loading files...</p>
           </div>
         ) : (
           /* File List */
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200">
+          <div className="bg-card rounded-xl shadow-sm border border-border">
             {items.length > 0 ? (
               <FileList 
                 items={items} 
@@ -261,13 +263,13 @@ const Index = () => {
               />
             ) : (
               <div className="p-10 text-center">
-                <FolderOpen className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-                <p className="text-neutral-600 font-medium">
-                  Không tìm thấy tệp nào trong thư mục này.
+                <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-foreground font-medium">
+                  No files found in this folder.
                 </p>
-                <p className="text-sm text-neutral-400 mt-1 max-w-md mx-auto">
-                  Bucket có thể trống, hoặc thông tin kết nối hiện tại không chính
-                  xác. Hãy kiểm tra lại trong Cài đặt kết nối.
+                <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                  The bucket may be empty, or the current connection details may be
+                  incorrect. Please check your connection settings.
                 </p>
                 <Button
                   variant="outline"
@@ -276,7 +278,7 @@ const Index = () => {
                   onClick={() => setSettingsOpen(true)}
                 >
                   <Settings className="w-4 h-4 mr-2" />
-                  Mở Cài đặt kết nối
+                  Open Connection Settings
                 </Button>
               </div>
             )}

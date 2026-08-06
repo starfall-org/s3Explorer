@@ -5,6 +5,7 @@ import {
   Play,
   Pause,
   X,
+  ChevronDown,
   Maximize2,
   Minimize2,
   Volume2,
@@ -13,7 +14,6 @@ import {
   SkipForward,
   Share2,
   Download,
-  Minimize,
   Download as CacheIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,10 +35,6 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [position, setPosition] = useState({ x: 20, y: 20 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [hasDragged, setHasDragged] = useState(false);
   const [isCached, setIsCached] = useState(false);
   const [isCaching, setIsCaching] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string>(url);
@@ -201,44 +197,6 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isMinimized) {
-      setIsDragging(true);
-      setHasDragged(false);
-      setDragStart({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      });
-      e.preventDefault();
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && isMinimized) {
-      setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
-      setHasDragged(true);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setTimeout(() => setHasDragged(false), 100);
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove as any);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove as any);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragStart]);
-
   const toggleMute = () => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
@@ -300,28 +258,53 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
   };
 
   return (
-    <>
-      {/* Fullscreen mode */}
-      {!isMinimized && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
-          onMouseMove={() => {
-            setShowControls(true);
-            if (controlsTimerRef.current) {
-              clearTimeout(controlsTimerRef.current);
-            }
-            if (isPlaying) {
-              controlsTimerRef.current = setTimeout(() => {
-                setShowControls(false);
-              }, 3000);
-            }
-          }}
-        >
-          <div
-            ref={containerRef}
-            className="relative w-full max-w-[90vw] max-h-[90vh] aspect-video"
-          >
-            {/* Close button */}
+    <div
+      className={cn(
+        "fixed z-50 overflow-hidden transition-all duration-300",
+        isMinimized
+          ? "bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] rounded-xl border border-border bg-card shadow-2xl"
+          : "inset-0 bg-black/90 flex items-center justify-center"
+      )}
+      onMouseMove={() => {
+        setShowControls(true);
+        if (controlsTimerRef.current) {
+          clearTimeout(controlsTimerRef.current);
+        }
+        if (isPlaying) {
+          controlsTimerRef.current = setTimeout(() => {
+            setShowControls(false);
+          }, 3000);
+        }
+      }}
+    >
+      <div
+        ref={containerRef}
+        className={cn(
+          "relative transition-all duration-300",
+          isMinimized
+            ? "flex items-center gap-3 p-2.5"
+            : "w-full max-w-[90vw] max-h-[90vh] aspect-video"
+        )}
+      >
+        {/* Video element - always mounted so playback continues across minimize/expand */}
+        <video
+          ref={videoRef}
+          className={cn(
+            "bg-black transition-all duration-300",
+            isMinimized
+              ? "w-28 aspect-video rounded-md object-contain flex-shrink-0"
+              : "w-full h-full rounded-lg object-contain"
+          )}
+          src={videoUrl}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onClick={togglePlay}
+        />
+
+        {/* Fullscreen overlays */}
+        {!isMinimized && (
+          <>
+            {/* Close (minimize) button */}
             <Button
               variant="ghost"
               size="icon"
@@ -329,9 +312,9 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
                 "absolute top-4 right-4 text-white hover:bg-white/20 transition-opacity z-10",
                 showControls ? "opacity-100" : "opacity-0"
               )}
-              onClick={onClose}
+              onClick={() => setIsMinimized(true)}
             >
-              <X className="w-6 h-6" />
+              <ChevronDown className="w-6 h-6" />
             </Button>
 
             {/* File name */}
@@ -355,20 +338,6 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
                 </div>
               )}
             </div>
-
-            {/* Video element */}
-            <video
-              ref={videoRef}
-              className={cn(
-                "w-full h-full rounded-lg object-contain bg-black",
-                "transition-all duration-300",
-                isLoading ? "opacity-70" : "opacity-100"
-              )}
-              src={videoUrl}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onClick={togglePlay}
-            />
 
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -483,7 +452,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
                     className="text-white hover:bg-white/20"
                     onClick={toggleMinimize}
                   >
-                    <Minimize className="w-6 h-6" />
+                    <Minimize2 className="w-6 h-6" />
                   </Button>
 
                   <Button
@@ -501,89 +470,70 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video' }: VideoPlayerProps) => 
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
 
-      {/* Minimized mode */}
-      {isMinimized && (
-        <div
-          className="fixed bg-black border border-gray-600 rounded-lg shadow-2xl z-50 cursor-move"
-          style={{
-            left: `${position.x}px`,
-            top: `${position.y}px`,
-            width: '320px',
-            height: '180px'
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-        >
-          {/* Video element */}
-          <video
-            ref={videoRef}
-            className="w-full h-full rounded-lg object-contain bg-black"
-            src={videoUrl}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onClick={(e) => {
-              if (!hasDragged) {
-                togglePlay();
-              }
-            }}
-          />
-
-          {/* Minimized controls */}
-          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-            <div className="flex items-center justify-between gap-1">
+        {/* Minimized overlays */}
+        {isMinimized && (
+          <>
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-muted">
+              <div
+                className="h-full bg-primary transition-all"
+                style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{fileName}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="h-9 w-9"
                 onClick={togglePlay}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? (
-                  <Pause className="w-4 h-4" />
+                  <Pause className="w-5 h-5" />
                 ) : (
-                  <Play className="w-4 h-4" />
+                  <Play className="w-5 h-5 ml-0.5" />
                 )}
               </Button>
-
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="h-9 w-9"
                 onClick={toggleMute}
+                aria-label="Toggle mute"
               >
-                {isMuted ? (
-                  <VolumeX className="w-4 h-4" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
-                )}
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </Button>
-
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="h-9 w-9"
                 onClick={toggleMinimize}
+                aria-label="Expand player"
               >
                 <Maximize2 className="w-4 h-4" />
               </Button>
-
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/20 h-8 w-8"
+                className="h-9 w-9"
                 onClick={onClose}
+                aria-label="Close player"
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
-          </div>
-        </div>
-      )}
-    </>
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 

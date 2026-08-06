@@ -110,11 +110,12 @@ export async function deleteS3Object(config: S3Config, key: string): Promise<voi
   await s3Client.send(command);
 }
 
-export async function getS3Object(config: S3Config, key: string) {
+export async function getS3Object(config: S3Config, key: string, range?: string) {
   const s3Client = createS3Client(config);
   const command = new GetObjectCommand({
     Bucket: config.bucketName,
     Key: key,
+    ...(range ? { Range: range } : {}),
   });
   return s3Client.send(command);
 }

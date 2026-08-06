@@ -19,7 +19,7 @@ export function ConnectionModeSelector({
     <div className="space-y-2">
       <Label className="flex items-center gap-2">
         <Globe className="h-4 w-4" />
-        Chế độ kết nối
+        Connection Mode
       </Label>
       <RadioGroup
         value={value}
@@ -45,10 +45,10 @@ export function ConnectionModeSelector({
           >
             <span className="flex items-center gap-1.5 text-sm font-medium">
               <Globe className="h-4 w-4 text-primary" />
-              Trình duyệt (Browser)
+              Browser
             </span>
             <span className="block text-xs text-muted-foreground">
-              Kết nối trực tiếp từ trình duyệt. Yêu cầu endpoint hỗ trợ CORS.
+              Connect directly from the browser. Requires the endpoint to support CORS.
             </span>
           </Label>
         </div>
@@ -72,10 +72,10 @@ export function ConnectionModeSelector({
           >
             <span className="flex items-center gap-1.5 text-sm font-medium">
               <Server className="h-4 w-4 text-primary" />
-              Máy chủ (Server)
+              Server
             </span>
             <span className="block text-xs text-muted-foreground">
-              Kết nối qua máy chủ proxy. Không cần CORS.
+              Connect through the server proxy. No CORS needed.
             </span>
           </Label>
         </div>

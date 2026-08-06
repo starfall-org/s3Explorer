@@ -98,13 +98,13 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
   };
 
   return (
-    <div className="w-full divide-y divide-neutral-100">
+    <div className="w-full divide-y divide-border">
       {items.map((item, index) => (
         <div
           key={item.key}
           onClick={() => onSelect(item)}
           className={cn(
-            "flex items-center px-4 py-3 hover:bg-neutral-100 cursor-pointer transition-colors",
+            "flex items-center px-4 py-3 hover:bg-muted cursor-pointer transition-colors",
             "animate-slide-in group"
           )}
           style={{
@@ -116,11 +116,11 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
           </div>
           
           <div className="ml-3 flex-1 min-w-0">
-            <p className="text-sm font-medium text-neutral-900 truncate">
+            <p className="text-sm font-medium text-foreground truncate">
               {item.name}
             </p>
             {item.size && (
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted-foreground">
                 {item.size}
                 {item.lastModified && ` · ${new Date(item.lastModified).toLocaleDateString()}`}
               </p>
@@ -137,7 +137,7 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
                     className="h-8 w-8"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <ChevronRight className="w-4 h-4 text-neutral-400" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -191,7 +191,7 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
                 size="icon"
                 className="h-8 w-8"
               >
-                <ChevronRight className="w-4 h-4 text-neutral-400" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </Button>
             )}
           </div>
@@ -208,25 +208,25 @@ const FileList = ({ items, onSelect, onDelete }: FileListProps) => {
           <div className="space-y-3 mt-4">
             <div className="flex items-center">
               <span className="font-medium min-w-24">Name:</span>
-              <span className="text-neutral-700">{infoItem?.name}</span>
+              <span className="text-foreground/90">{infoItem?.name}</span>
             </div>
             <div className="flex items-center">
               <span className="font-medium min-w-24">Type:</span>
-              <span className="text-neutral-700">{infoItem?.type}</span>
+              <span className="text-foreground/90">{infoItem?.type}</span>
             </div>
             <div className="flex items-center">
               <span className="font-medium min-w-24">Size:</span>
-              <span className="text-neutral-700">{infoItem?.size}</span>
+              <span className="text-foreground/90">{infoItem?.size}</span>
             </div>
             <div className="flex items-center">
               <span className="font-medium min-w-24">Modified:</span>
-              <span className="text-neutral-700">
+              <span className="text-foreground/90">
                 {infoItem?.lastModified ? new Date(infoItem.lastModified).toLocaleString() : 'N/A'}
               </span>
             </div>
             <div className="flex items-center">
               <span className="font-medium min-w-24">Path:</span>
-              <span className="text-neutral-700 truncate">{infoItem?.key}</span>
+              <span className="text-foreground/90 truncate">{infoItem?.key}</span>
             </div>
           </div>
         </DialogContent>

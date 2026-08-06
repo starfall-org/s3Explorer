@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, Server, Key, Package } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 import { ConnectionModeSelector } from '@/components/ConnectionModeSelector';
 import { ConnectionMode, CONNECTION_MODE_COOKIE } from '@/utils/s3Types';
 
@@ -30,7 +31,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
@@ -38,9 +42,9 @@ const Login = () => {
               <Lock className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">Đăng nhập S3 Explorer</CardTitle>
+          <CardTitle className="text-2xl text-center">S3 Explorer Login</CardTitle>
           <CardDescription className="text-center">
-            Nhập thông tin xác thực S3 của bạn
+            Enter your S3 credentials
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -108,14 +112,14 @@ const Login = () => {
             <ConnectionModeSelector value={mode} onChange={setMode} />
 
             <p className="text-xs text-muted-foreground">
-              Chọn <strong>Trình duyệt</strong> nếu endpoint S3 hỗ trợ CORS. Chọn{' '}
-              <strong>Máy chủ</strong> nếu bạn muốn trình duyệt kết nối qua máy chủ proxy
-              (không cần CORS).
+              Choose <strong>Browser</strong> if your S3 endpoint supports CORS. Choose{' '}
+              <strong>Server</strong> to connect through the server proxy
+              (no CORS needed).
             </p>
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
-              Đăng nhập
+              Log In
             </Button>
           </CardFooter>
         </form>

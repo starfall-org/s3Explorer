@@ -75,14 +75,14 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in p-4">
-      <div className="w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[85vh]">
+      <div className="w-full max-w-4xl bg-card rounded-xl shadow-2xl flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2 min-w-0">
             <FileText className="w-5 h-5 text-primary flex-shrink-0" />
             <div className="min-w-0">
-              <h2 className="text-sm font-semibold text-neutral-900 truncate">{fileName}</h2>
-              <p className="text-xs text-neutral-500">
+              <h2 className="text-sm font-semibold text-foreground truncate">{fileName}</h2>
+              <p className="text-xs text-muted-foreground">
                 {lineCount.toLocaleString()} lines
               </p>
             </div>
@@ -123,7 +123,7 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-auto bg-neutral-50">
+        <div className="flex-1 overflow-auto bg-muted">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -131,7 +131,7 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
           ) : error ? (
             <div className="p-8 text-center text-red-600">{error}</div>
           ) : (
-            <pre className="p-5 text-sm font-mono text-neutral-800 whitespace-pre-wrap break-words leading-relaxed">
+            <pre className="p-5 text-sm font-mono text-foreground whitespace-pre-wrap break-words leading-relaxed">
               {content}
             </pre>
           )}

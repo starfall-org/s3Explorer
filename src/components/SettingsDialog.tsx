@@ -67,8 +67,8 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
     Cookies.set('s3Bucket', bucket.trim());
     Cookies.set(CONNECTION_MODE_COOKIE, mode);
     toast({
-      title: 'Đã lưu',
-      description: 'Thông tin kết nối đã được cập nhật.',
+      title: 'Saved',
+      description: 'Connection settings have been updated.',
     });
     onSaved?.();
   };
@@ -81,19 +81,19 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
       if (items.length === 0) {
         setTestResult({
           ok: true,
-          message: 'Kết nối thành công! Bucket trống hoặc không có tệp ở thư mục gốc.',
+          message: 'Connection successful! The bucket is empty or has no files in the root folder.',
         });
       } else {
         setTestResult({
           ok: true,
-          message: `Kết nối thành công! Tìm thấy ${items.length} mục.`,
+          message: `Connection successful! Found ${items.length} items.`,
         });
       }
     } catch (err) {
       console.error('Connection test failed:', err);
       setTestResult({
         ok: false,
-        message: 'Kết nối thất bại. Vui lòng kiểm tra endpoint và thông tin xác thực.',
+        message: 'Connection failed. Please check the endpoint and credentials.',
       });
     } finally {
       setTesting(false);
@@ -115,10 +115,10 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            Cài đặt kết nối S3
+            S3 Connection Settings
           </DialogTitle>
           <DialogDescription>
-            Xem và quản lý thông tin xác thực S3 đã lưu trong trình duyệt.
+            View and manage the S3 credentials saved in your browser.
           </DialogDescription>
         </DialogHeader>
 
@@ -172,8 +172,8 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
               <button
                 type="button"
                 onClick={() => setShowSecret(!showSecret)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600"
-                aria-label={showSecret ? 'Ẩn secret key' : 'Hiện secret key'}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                aria-label={showSecret ? 'Hide secret key' : 'Show secret key'}
               >
                 {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -196,7 +196,7 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
 
           {testResult && (
             <Alert variant={testResult.ok ? 'default' : 'destructive'}>
-              <AlertTitle>{testResult.ok ? 'Thành công' : 'Thất bại'}</AlertTitle>
+              <AlertTitle>{testResult.ok ? 'Success' : 'Failure'}</AlertTitle>
               <AlertDescription>{testResult.message}</AlertDescription>
             </Alert>
           )}
@@ -209,11 +209,11 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
               disabled={testing}
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${testing ? 'animate-spin' : ''}`} />
-              {testing ? 'Đang kiểm tra…' : 'Kiểm tra kết nối'}
+              {testing ? 'Testing…' : 'Test Connection'}
             </Button>
             <Button type="submit">
               <Save className="w-4 h-4 mr-2" />
-              Lưu thay đổi
+              Save Changes
             </Button>
           </DialogFooter>
         </form>
@@ -225,7 +225,7 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4 mr-2" />
-            Đăng xuất / Xóa thông tin đã lưu
+            Log Out / Clear Saved Info
           </Button>
         </div>
       </DialogContent>

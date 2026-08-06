@@ -3,6 +3,7 @@ import {
   ListObjectsV2Command,
   GetObjectCommand,
   DeleteObjectCommand,
+  PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Cookies from 'js-cookie';
@@ -98,6 +99,25 @@ const deleteViaServer = async (key: string): Promise<boolean> => {
     return data.success === true;
   } catch (error) {
     console.error('Error deleting S3 object (server):', error);
+    return false;
+  }
+};
+
+// Server mode: upload a file through the Next.js API route
+const uploadViaServer = async (file: File, key: string): Promise<boolean> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('key', key);
+    const response = await fetch('/api/s3/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Error uploading S3 object (server):', error);
     return false;
   }
 };
@@ -229,6 +249,41 @@ export const deleteS3Object = async (
     return true;
   } catch (error) {
     console.error("Error deleting S3 object:", error);
+    return false;
+  }
+};
+
+// Upload a file to S3
+// - Browser mode: uses the AWS SDK directly (requires CORS on the endpoint)
+// - Server mode: uploads through the Next.js API route (no CORS required)
+// The file is placed inside `path` (with a trailing slash) in the bucket.
+export const uploadS3Object = async (
+  file: File,
+  path: string = "",
+  configOverride?: S3Config,
+  modeOverride?: ConnectionMode
+): Promise<boolean> => {
+  const mode = modeOverride ?? getConnectionMode();
+  const key = path ? `${path}${file.name}` : file.name;
+
+  if (mode === 'server') {
+    return uploadViaServer(file, key);
+  }
+
+  try {
+    const config = configOverride ?? getS3Config();
+    const s3Client = createS3Client(config);
+    const command = new PutObjectCommand({
+      Bucket: config.bucketName,
+      Key: key,
+      Body: file,
+      ContentType: file.type || undefined,
+    });
+
+    await s3Client.send(command);
+    return true;
+  } catch (error) {
+    console.error("Error uploading S3 object:", error);
     return false;
   }
 };

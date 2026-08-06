@@ -5,6 +5,8 @@ import {
   Play,
   Pause,
   X,
+  ChevronDown,
+  Maximize2,
   Volume2,
   VolumeX,
   SkipBack,
@@ -33,6 +35,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
   const [isCached, setIsCached] = useState(false);
   const [isCaching, setIsCaching] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string>(url);
+  const [minimized, setMinimized] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const formatTime = (seconds: number) => {
@@ -192,11 +195,13 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
   };
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/90 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-      <div className="w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <>
+      {!minimized && (
+      <div className="fixed inset-0 bg-neutral-900/90 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+      <div className="w-full max-w-md mx-4 bg-card rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6">
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Database className="w-4 h-4" />
             {isCached ? (
               <span className="text-green-600">Cached</span>
@@ -210,10 +215,10 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
             variant="ghost"
             size="icon"
             className="h-8 w-8"
-            onClick={onClose}
-            aria-label="Close player"
+            onClick={() => setMinimized(true)}
+            aria-label="Minimize player"
           >
-            <X className="w-5 h-5" />
+            <ChevronDown className="w-5 h-5" />
           </Button>
         </div>
 
@@ -222,10 +227,10 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
           <div className="w-36 h-36 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-inner">
             <Music className="w-16 h-16 text-primary" />
           </div>
-          <h2 className="mt-6 text-lg font-semibold text-neutral-900 text-center truncate max-w-full">
+          <h2 className="mt-6 text-lg font-semibold text-foreground text-center truncate max-w-full">
             {fileName}
           </h2>
-          <p className="text-sm text-neutral-500 mt-1">Audio file</p>
+          <p className="text-sm text-muted-foreground mt-1">Audio file</p>
         </div>
 
         {/* Progress */}
@@ -239,7 +244,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
             disabled={isLoading}
             aria-label="Seek"
           />
-          <div className="flex justify-between text-xs text-neutral-500 mt-1">
+          <div className="flex justify-between text-xs text-muted-foreground mt-1">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -329,15 +334,75 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio' }: AudioPlayerProps) => 
           </div>
         </div>
 
-        {/* Hidden audio element */}
-        <audio
-          ref={audioRef}
-          src={audioUrl}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-        />
       </div>
     </div>
+      )}
+
+      {minimized && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[min(92vw,640px)] rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+          <div className="h-1 bg-muted">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-3 p-2.5">
+            <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Music className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{fileName}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => skipTime(-10)} aria-label="Back 10 seconds">
+                <SkipBack className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10"
+                onClick={togglePlay}
+                disabled={isLoading}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="w-5 h-5" />
+                ) : (
+                  <Play className="w-5 h-5 ml-0.5" />
+                )}
+              </Button>
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => skipTime(10)} aria-label="Forward 10 seconds">
+                <SkipForward className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={toggleMute} aria-label="Toggle mute">
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </Button>
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setMinimized(false)} aria-label="Expand player">
+                <Maximize2 className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onClose} aria-label="Close player">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hidden audio element - always mounted to continue playback */}
+      <audio
+        ref={audioRef}
+        src={audioUrl}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+      />
+    </>
   );
 };
 
