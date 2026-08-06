@@ -1,0 +1,24 @@
+1:"$Sreact.fragment"
+2:I[47257,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"ClientPageRoot"]
+3:I[52683,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js","/_next/static/chunks/2w59wpewr4xl1.js","/_next/static/chunks/1rpg5irtjyt96.js"],"default"]
+6:I[97367,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+b:I[97367,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"ViewportBoundary"]
+c:I[97367,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"MetadataBoundary"]
+e:I[1661,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"Providers"]
+f:I[39756,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"default"]
+10:I[37457,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"default"]
+11:I[22016,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js","/_next/static/chunks/22i43cg4l4-dq.js"],""]
+:HL["/_next/static/chunks/04d2i5xup-e_k.css","style"]
+a:X
+0:{"buildId":"fQXkQzjRqcLzLzBhONPTX","data":[{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/_next/static/chunks/2w59wpewr4xl1.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/1rpg5irtjyt96.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":"$@9","staleTime":"$a","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$Lb",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$Lc",null,{"children":["$","$7",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Bộ Sưu Tập"}],["$","meta","1",{"name":"description","content":"S3 Explorer - Trình duyệt và quản lý file trên Amazon S3"}]]}]}]}],null]}],"isPartial":"$@d","staleTime":"$a","varyParams":null},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/04d2i5xup-e_k.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/413ftum2rywwe.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/0p_5atw3ek8pq.js","async":true}],["$","script","script-2",{"src":"/_next/static/chunks/2n2j6r09rylb-.js","async":true}],["$","script","script-3",{"src":"/_next/static/chunks/3iabm49ckjrbt.js","async":true}]],["$","html",null,{"lang":"vi","children":["$","body",null,{"className":"antialiased","children":["$","$Le",null,{"children":["$","$Lf",null,{"parallelRouterKey":"children","template":["$","$L10",null,{}],"notFound":[["$","div",null,{"className":"min-h-screen flex items-center justify-center bg-gray-100","children":["$","div",null,{"className":"text-center","children":[["$","h1",null,{"className":"text-4xl font-bold mb-4","children":"404"}],["$","p",null,{"className":"text-xl text-gray-600 mb-4","children":"Oops! Page not found"}],["$","$L11",null,{"href":"/","className":"text-blue-500 hover:text-blue-700 underline","children":"Return to Home"}]]}]}],[]]}]}]}]}]]}],"isPartial":"$@12","staleTime":"$a","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@13","rootVaryParams":null,"needsRuntimeRequest":"$@14"}
+4:{}
+5:"$0:data:0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null
+a:300
+14:true
+a:C
+13:0
+d:"$undefined"
+12:"$undefined"
+9:"$undefined"

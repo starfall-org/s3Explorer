@@ -6,15 +6,23 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Cookies from 'js-cookie';
+import {
+  S3Config,
+  S3Item,
+  ConnectionMode,
+  CONNECTION_MODE_COOKIE,
+  formatBytes,
+  getFileType,
+} from './s3Types';
 
-// S3 connection configuration
-// Can come from cookies (saved credentials) or be passed explicitly (e.g. from Settings)
-export interface S3Config {
-  endpoint: string;
-  accessKey: string;
-  secretKey: string;
-  bucketName: string;
-}
+// Re-export shared types for compatibility with existing imports
+// (e.g. `import { S3Item } from '@/utils/s3Client'`)
+export type { S3Config, S3Item, ConnectionMode } from './s3Types';
+
+// Get the selected connection mode from cookies (default: browser)
+export const getConnectionMode = (): ConnectionMode => {
+  return Cookies.get(CONNECTION_MODE_COOKIE) === 'server' ? 'server' : 'browser';
+};
 
 // Function to get S3 client configuration from cookies
 const getS3Config = (): S3Config => {
@@ -39,47 +47,58 @@ const createS3Client = (config: S3Config) => {
   });
 };
 
-// Interface for file/folder items
-export interface S3Item {
-  name: string;
-  type: "folder" | "file" | "video" | "image" | "audio" | "text";
-  size?: string;
-  lastModified?: string;
-  key: string;
-  url?: string; // Add URL for direct access
-}
-
-// Function to format bytes to human-readable format
-const formatBytes = (bytes: number, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+// Build a same-origin proxy URL for a file (server connection mode)
+const buildProxyUrl = (key: string): string => {
+  return `/api/s3/proxy?key=${encodeURIComponent(key)}`;
 };
 
-// Function to determine file type
-const getFileType = (
-  fileName: string
-): "folder" | "file" | "video" | "image" | "audio" | "text" => {
-  const ext = fileName.split(".").pop()?.toLowerCase() || "";
+// Generate a pre-signed URL using the browser SDK (browser connection mode)
+const getPresignedUrl = async (
+  config: S3Config,
+  key: string
+): Promise<string> => {
+  const s3Client = createS3Client(config);
+  const command = new GetObjectCommand({
+    Bucket: config.bucketName,
+    Key: key,
+  });
+  return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+};
 
-  if (!ext) return "folder";
+// Server mode: list objects through the Next.js API route
+const listViaServer = async (
+  path: string,
+  configOverride?: S3Config
+): Promise<S3Item[]> => {
+  const response = await fetch('/api/s3/list', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      path,
+      config: configOverride ?? null,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Server list failed with status ${response.status}`);
+  }
+  const data = await response.json();
+  return (data.items as S3Item[]) ?? [];
+};
 
-  if (["mp4", "webm", "mov", "avi", "mkv", "m4v", "wmv", "flv", "3gp", "ts"].includes(ext)) {
-    return "video";
-  } else if (["jpg", "jpeg", "png", "gif", "svg", "webp", "bmp", "ico", "avif", "tiff"].includes(ext)) {
-    return "image";
-  } else if (["mp3", "wav", "ogg", "oga", "m4a", "aac", "flac", "opus", "wma", "mid", "midi", "weba"].includes(ext)) {
-    return "audio";
-  } else if (["txt", "md", "markdown", "json", "js", "mjs", "cjs", "ts", "tsx", "jsx", "css", "scss", "less", "html", "htm", "xml", "csv", "log", "py", "java", "c", "h", "cpp", "hpp", "cs", "go", "rs", "rb", "php", "sh", "bash", "yml", "yaml", "toml", "ini", "cfg", "conf", "env", "sql", "vue", "svelte", "astro"].includes(ext)) {
-    return "text";
-  } else {
-    return "file";
+// Server mode: delete an object through the Next.js API route
+const deleteViaServer = async (key: string): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/s3/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('Error deleting S3 object (server):', error);
+    return false;
   }
 };
 
@@ -87,8 +106,22 @@ const getFileType = (
 // Pass an optional configOverride to list using credentials other than the saved cookies (e.g. connection test)
 export const listS3Objects = async (
   path: string = "",
-  configOverride?: S3Config
+  configOverride?: S3Config,
+  modeOverride?: ConnectionMode
 ): Promise<S3Item[]> => {
+  const mode = modeOverride ?? getConnectionMode();
+
+  // Server mode: delegate to the Next.js API route (avoids CORS)
+  if (mode === 'server') {
+    try {
+      return await listViaServer(path, configOverride);
+    } catch (error) {
+      console.error("Error listing S3 objects (server):", error);
+      throw error; // Let the caller know the listing/connection failed
+    }
+  }
+
+  // Browser mode: use the AWS SDK directly (requires CORS on the endpoint)
   try {
     const config = configOverride ?? getS3Config();
     const s3Client = createS3Client(config);
@@ -133,7 +166,7 @@ export const listS3Objects = async (
 
         // Generate pre-signed URL for the file
         if (fileItem.type !== "folder") {
-          fileItem.url = await getS3FileUrl(fileItem.key);
+          fileItem.url = await getPresignedUrl(config, fileItem.key);
         }
 
         items.push(fileItem);
@@ -147,17 +180,24 @@ export const listS3Objects = async (
   }
 };
 
-// Get a presigned URL for a file
-export const getS3FileUrl = async (key: string): Promise<string> => {
+// Get a URL to access a file's content
+// - Server mode: returns a same-origin proxy URL (no CORS required)
+// - Browser mode: returns a pre-signed URL
+// Pass an optional modeOverride so callers (e.g. connection test) can
+// resolve URLs with a specific mode regardless of the saved cookie.
+export const getS3FileUrl = async (
+  key: string,
+  modeOverride?: ConnectionMode
+): Promise<string> => {
+  const mode = modeOverride ?? getConnectionMode();
+
+  if (mode === 'server') {
+    return buildProxyUrl(key);
+  }
+
   try {
     const config = getS3Config();
-    const s3Client = createS3Client(config);
-    const command = new GetObjectCommand({
-      Bucket: config.bucketName,
-      Key: key,
-    });
-
-    return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+    return await getPresignedUrl(config, key);
   } catch (error) {
     console.error("Error getting presigned URL:", error);
     return "";
@@ -165,7 +205,18 @@ export const getS3FileUrl = async (key: string): Promise<string> => {
 };
 
 // Delete an object from S3
-export const deleteS3Object = async (key: string): Promise<boolean> => {
+// Pass an optional modeOverride to delete with a specific mode regardless
+// of the saved cookie (used by the connection test in Settings).
+export const deleteS3Object = async (
+  key: string,
+  modeOverride?: ConnectionMode
+): Promise<boolean> => {
+  const mode = modeOverride ?? getConnectionMode();
+
+  if (mode === 'server') {
+    return deleteViaServer(key);
+  }
+
   try {
     const config = getS3Config();
     const s3Client = createS3Client(config);

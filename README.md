@@ -4,7 +4,7 @@ A modern web application for browsing and managing files on Amazon S3 Storage.
 
 ![S3 Explorer](https://img.shields.io/badge/React-18-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Vite](https://img.shields.io/badge/Vite-5-orange)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![License](https://img.shields.io/badge/License-GPLv3-green)
 
 ## Features
@@ -14,7 +14,7 @@ A modern web application for browsing and managing files on Amazon S3 Storage.
 - 🗑️ **File Management** - Delete files directly from the browser interface
 - 🔐 **Secure Authentication** - Safe credential storage using browser cookies
 - 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
-- ⚡ **Fast Performance** - Built with Vite for lightning-fast development and builds
+- ⚡ **Fast Performance** - Built with Next.js for fast development and optimized production builds
 - 🎨 **Modern UI** - Beautiful interface using shadcn/ui components and Tailwind CSS
 
 ## Tech Stack
@@ -22,8 +22,8 @@ A modern web application for browsing and managing files on Amazon S3 Storage.
 ### Frontend
 - **React 18** - Modern React with hooks and concurrent features
 - **TypeScript** - Type-safe development experience
-- **Vite** - Fast build tool and dev server
-- **React Router DOM** - Client-side routing
+- **Next.js 16** - React framework with App Router
+- **Next.js App Router** - File-based client-side routing
 - **React Query (TanStack Query)** - Server state management
 
 ### UI & Styling
@@ -45,7 +45,7 @@ A modern web application for browsing and managing files on Amazon S3 Storage.
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18.18+ 
 - npm, yarn, pnpm, or bun
 
 ### Installation
@@ -75,7 +75,7 @@ pnpm dev
 ```
 
 4. **Open your browser**
-Navigate to `http://localhost:5173`
+Navigate to `http://localhost:3000`
 
 ## Configuration
 
@@ -87,6 +87,23 @@ The application requires AWS S3 credentials. You'll be prompted to provide:
 - **Bucket Name** - The name of your S3 bucket
 
 These credentials are securely stored in browser cookies for convenience.
+
+## Connection Modes
+
+When logging in, you can choose how the app connects to S3:
+
+- **Browser (Trình duyệt)** — The app uses the AWS SDK directly from the
+  browser. This requires your S3 endpoint to support **CORS** (be sure to
+  allow the app's origin).
+- **Server (Máy chủ)** — The app routes all S3 requests through the Next.js
+  server via `/api/s3/*` routes, which proxy the calls server-side. This
+  **avoids CORS entirely** and works with any S3-compatible endpoint.
+
+Files are served through a same-origin proxy URL (`/api/s3/proxy?key=...`) in
+server mode, so video/audio/image/text previews and downloads work without
+extra CORS configuration. The selected mode is stored in the
+`s3ConnectionMode` cookie and can be changed later from the connection
+settings dialog.
 
 ## Usage Guide
 
@@ -119,20 +136,23 @@ npm run dev
 # Build for production
 npm run build
 
-# Preview production build
-npm run preview
+# Start production server (after build)
+npm run start
 
 # Run ESLint
 npm run lint
-
-# Build in development mode
-npm run build:dev
 ```
 
 ### Project Structure
 
 ```
 src/
+├── app/                # Next.js App Router
+│   ├── layout.tsx      # Root layout with providers
+│   ├── page.tsx        # Main file browser
+│   ├── login/          # Authentication page
+│   │   └── page.tsx
+│   └── not-found.tsx   # 404 page
 ├── components/          # Reusable UI components
 │   ├── ui/             # shadcn/ui components
 │   ├── FileList.tsx    # File listing component
@@ -140,14 +160,9 @@ src/
 │   ├── AudioPlayer.tsx # Audio/music player component
 │   ├── TextViewer.tsx  # Text file viewer component
 │   └── CacheManager.tsx # Media cache manager
-├── pages/              # Page components
-│   ├── Index.tsx       # Main file browser
-│   ├── Login.tsx       # Authentication page
-│   └── NotFound.tsx    # 404 page
 ├── hooks/              # Custom React hooks
 ├── lib/                # Utility functions
-├── utils/              # S3 client utilities
-└── App.tsx             # Main application component
+└── utils/              # S3 client utilities
 ```
 
 ## Build & Deployment
@@ -158,17 +173,14 @@ src/
 npm run build
 ```
 
-The optimized build will be in the `dist` directory.
+The optimized build will be in the `.next` directory.
 
 ### Deployment Options
 
-1. **Static Hosting** (Recommended)
-   - Deploy to Netlify, Vercel, or any static hosting service
-   - No server required - pure client-side application
-
- Deployment**
-   - Upload the `dist` folder to your preferred CDN
-   - Configure SPA routing if needed
+1. **Node.js Hosting**
+   - Deploy to Vercel, Netlify, or any Node.js hosting service
+   - Run `npm run build` then `npm run start`
+   - The application is a pure client-side app powered by Next.js
 
 ## Security Considerations
 

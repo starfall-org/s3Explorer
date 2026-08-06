@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useState } from 'react';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +29,8 @@ import {
 } from 'lucide-react';
 import { listS3Objects, type S3Config } from '@/utils/s3Client';
 import { useToast } from '@/components/ui/use-toast';
+import { ConnectionModeSelector } from '@/components/ConnectionModeSelector';
+import { ConnectionMode, CONNECTION_MODE_COOKIE } from '@/utils/s3Types';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -34,10 +39,14 @@ interface SettingsDialogProps {
 }
 
 const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) => {
+  const router = useRouter();
   const [endpoint, setEndpoint] = useState(() => Cookies.get('s3Endpoint') || '');
   const [apikey, setApikey] = useState(() => Cookies.get('s3Apikey') || '');
   const [secretKey, setSecretKey] = useState(() => Cookies.get('s3SecretKey') || '');
   const [bucket, setBucket] = useState(() => Cookies.get('s3Bucket') || '');
+  const [mode, setMode] = useState<ConnectionMode>(() =>
+    Cookies.get(CONNECTION_MODE_COOKIE) === 'server' ? 'server' : 'browser'
+  );
   const [showSecret, setShowSecret] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -56,6 +65,7 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
     Cookies.set('s3Apikey', apikey.trim());
     Cookies.set('s3SecretKey', secretKey);
     Cookies.set('s3Bucket', bucket.trim());
+    Cookies.set(CONNECTION_MODE_COOKIE, mode);
     toast({
       title: 'Đã lưu',
       description: 'Thông tin kết nối đã được cập nhật.',
@@ -67,7 +77,7 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
     setTesting(true);
     setTestResult(null);
     try {
-      const items = await listS3Objects('', buildConfig());
+      const items = await listS3Objects('', buildConfig(), mode);
       if (items.length === 0) {
         setTestResult({
           ok: true,
@@ -95,7 +105,8 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
     Cookies.remove('s3Apikey');
     Cookies.remove('s3SecretKey');
     Cookies.remove('s3Bucket');
-    window.location.href = '/login';
+    Cookies.remove(CONNECTION_MODE_COOKIE);
+    router.push('/login');
   };
 
   return (
@@ -178,6 +189,8 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
               onChange={(e) => setBucket(e.target.value)}
             />
           </div>
+
+          <ConnectionModeSelector value={mode} onChange={setMode} />
 
           {testResult && (
             <Alert variant={testResult.ok ? 'default' : 'destructive'}>

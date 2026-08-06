@@ -11,11 +11,13 @@ class MediaCacheManager {
   private maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 days
 
   constructor() {
-    this.initCache();
+    if (typeof window !== 'undefined') {
+      this.initCache();
+    }
   }
 
   private async initCache() {
-    if ('caches' in window) {
+    if (typeof window !== 'undefined' && 'caches' in window) {
       try {
         const cache = await caches.open(this.cacheName);
         // Clean old entries on init
@@ -27,7 +29,7 @@ class MediaCacheManager {
   }
 
   private async cleanOldCache() {
-    if (!('caches' in window)) return;
+    if (typeof window === 'undefined' || !('caches' in window)) return;
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -49,7 +51,7 @@ class MediaCacheManager {
   }
 
   async isVideoCached(url: string): Promise<boolean> {
-    if (!('caches' in window)) return false;
+    if (typeof window === 'undefined' || !('caches' in window)) return false;
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -62,7 +64,7 @@ class MediaCacheManager {
   }
 
   async getCachedVideo(url: string): Promise<string | null> {
-    if (!('caches' in window)) return null;
+    if (typeof window === 'undefined' || !('caches' in window)) return null;
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -80,7 +82,7 @@ class MediaCacheManager {
   }
 
   async cacheVideo(url: string, blob: Blob): Promise<void> {
-    if (!('caches' in window)) return;
+    if (typeof window === 'undefined' || !('caches' in window)) return;
 
     try {
       // Check cache size before adding
@@ -103,7 +105,7 @@ class MediaCacheManager {
   }
 
   private async ensureCacheSize(newVideoSize: number) {
-    if (!('caches' in window)) return;
+    if (typeof window === 'undefined' || !('caches' in window)) return;
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -143,7 +145,7 @@ class MediaCacheManager {
   }
 
   async getCacheStats(): Promise<{ count: number; size: string }> {
-    if (!('caches' in window)) return { count: 0, size: '0 MB' };
+    if (typeof window === 'undefined' || !('caches' in window)) return { count: 0, size: '0 MB' };
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -169,7 +171,7 @@ class MediaCacheManager {
   }
 
   async clearCache(): Promise<void> {
-    if (!('caches' in window)) return;
+    if (typeof window === 'undefined' || !('caches' in window)) return;
 
     try {
       await caches.delete(this.cacheName);

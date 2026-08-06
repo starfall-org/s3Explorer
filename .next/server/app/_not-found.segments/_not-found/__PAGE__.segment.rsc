@@ -1,0 +1,23 @@
+1:"$Sreact.fragment"
+2:I[22016,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js","/_next/static/chunks/22i43cg4l4-dq.js"],""]
+3:I[97367,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+8:I[97367,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"ViewportBoundary"]
+9:I[97367,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"MetadataBoundary"]
+b:I[39756,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"default"]
+c:I[37457,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"default"]
+f:I[1661,["/_next/static/chunks/413ftum2rywwe.js","/_next/static/chunks/0p_5atw3ek8pq.js","/_next/static/chunks/2n2j6r09rylb-.js","/_next/static/chunks/3iabm49ckjrbt.js"],"Providers"]
+:HL["/_next/static/chunks/04d2i5xup-e_k.css","style"]
+7:X
+e:X
+e:C
+0:{"buildId":"fQXkQzjRqcLzLzBhONPTX","data":[{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"min-h-screen flex items-center justify-center bg-gray-100","children":["$","div",null,{"className":"text-center","children":[["$","h1",null,{"className":"text-4xl font-bold mb-4","children":"404"}],["$","p",null,{"className":"text-xl text-gray-600 mb-4","children":"Oops! Page not found"}],["$","$L2",null,{"href":"/","className":"text-blue-500 hover:text-blue-700 underline","children":"Return to Home"}]]}]}],[["$","script","script-0",{"src":"/_next/static/chunks/22i43cg4l4-dq.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L8",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L9",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Bộ Sưu Tập"}],["$","meta","1",{"name":"description","content":"S3 Explorer - Trình duyệt và quản lý file trên Amazon S3"}]]}]}]}],null]}],"isPartial":"$@a","staleTime":"$7","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lb",null,{"parallelRouterKey":"children","template":["$","$Lc",null,{}]}]]}],"isPartial":"$@d","staleTime":"$7","varyParams":"$e"},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/04d2i5xup-e_k.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/413ftum2rywwe.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/0p_5atw3ek8pq.js","async":true}],["$","script","script-2",{"src":"/_next/static/chunks/2n2j6r09rylb-.js","async":true}],["$","script","script-3",{"src":"/_next/static/chunks/3iabm49ckjrbt.js","async":true}]],["$","html",null,{"lang":"vi","children":["$","body",null,{"className":"antialiased","children":["$","$Lf",null,{"children":["$","$Lb",null,{"parallelRouterKey":"children","template":["$","$Lc",null,{}],"notFound":[["$","div",null,{"className":"min-h-screen flex items-center justify-center bg-gray-100","children":["$","div",null,{"className":"text-center","children":[["$","h1",null,{"className":"text-4xl font-bold mb-4","children":"404"}],["$","p",null,{"className":"text-xl text-gray-600 mb-4","children":"Oops! Page not found"}],["$","$L2",null,{"href":"/","className":"text-blue-500 hover:text-blue-700 underline","children":"Return to Home"}]]}]}],[]]}]}]}]}]]}],"isPartial":"$@10","staleTime":"$7","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@11","rootVaryParams":null,"needsRuntimeRequest":"$@12"}
+5:null
+7:300
+12:true
+7:C
+11:0
+a:"$undefined"
+d:"$undefined"
+10:"$undefined"
+6:"$undefined"

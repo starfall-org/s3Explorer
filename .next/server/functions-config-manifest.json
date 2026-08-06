@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/s3/delete": {},
+    "/api/s3/list": {},
+    "/api/s3/proxy": {}
+  }
+}
