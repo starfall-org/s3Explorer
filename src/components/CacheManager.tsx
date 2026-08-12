@@ -99,7 +99,7 @@ const CacheManager = () => {
 
       <div className="text-xs text-muted-foreground space-y-1">
         <p>• Media is automatically cached when played</p>
-        <p>• Cache is limited to 500MB and 7 days</p>
+        <p>• Cache is limited to 100MB and 7 days</p>
         <p>• Old files are removed automatically</p>
       </div>
     </div>

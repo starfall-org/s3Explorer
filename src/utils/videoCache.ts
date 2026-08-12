@@ -6,9 +6,26 @@ interface CacheEntry {
 }
 
 class MediaCacheManager {
-  private cacheName = 's3explorer-video-cache';
-  private maxCacheSize = 500 * 1024 * 1024; // 500MB limit
+  private cacheName = 's3explorer-media-cache-v2';
+  private maxCacheSize = 100 * 1024 * 1024; // Mobile browsers have tighter storage quotas
+  private maxSingleFileSize = 100 * 1024 * 1024;
   private maxCacheAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+  /**
+   * Presigned URLs contain a different signature on every refresh. They must
+   * not be used as the Cache API key, otherwise cached media is missed after
+   * the URL is regenerated.
+   */
+  private getCacheKey(url: string): string {
+    try {
+      const parsed = new URL(url, window.location.origin);
+      const s3Key = parsed.searchParams.get('key');
+      if (s3Key) return `/__media_cache__/${encodeURIComponent(s3Key)}`;
+      return `/__media_cache__/${encodeURIComponent(parsed.origin + parsed.pathname)}`;
+    } catch {
+      return `/__media_cache__/${encodeURIComponent(url.split('?')[0])}`;
+    }
+  }
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -19,6 +36,9 @@ class MediaCacheManager {
   private async initCache() {
     if (typeof window !== 'undefined' && 'caches' in window) {
       try {
+        // Remove the pre-fix cache so stale URL-keyed entries do not consume
+        // the limited mobile storage quota.
+        await caches.delete('s3explorer-video-cache');
         const cache = await caches.open(this.cacheName);
         // Clean old entries on init
         await this.cleanOldCache();
@@ -55,7 +75,7 @@ class MediaCacheManager {
 
     try {
       const cache = await caches.open(this.cacheName);
-      const cached = await cache.match(url);
+      const cached = await cache.match(this.getCacheKey(url));
       return cached !== undefined;
     } catch (error) {
       console.warn('Failed to check cache:', error);
@@ -68,7 +88,7 @@ class MediaCacheManager {
 
     try {
       const cache = await caches.open(this.cacheName);
-      const cached = await cache.match(url);
+      const cached = await cache.match(this.getCacheKey(url));
       
       if (cached) {
         const blob = await cached.blob();
@@ -85,6 +105,11 @@ class MediaCacheManager {
     if (typeof window === 'undefined' || !('caches' in window)) return;
 
     try {
+      if (blob.size === 0 || blob.size > this.maxSingleFileSize) {
+        console.warn('Skipping media cache: file is empty or too large');
+        return;
+      }
+
       // Check cache size before adding
       await this.ensureCacheSize(blob.size);
 
@@ -97,7 +122,7 @@ class MediaCacheManager {
         }
       });
 
-      await cache.put(url, response);
+      await cache.put(this.getCacheKey(url), response);
       console.log(`Video cached: ${url}`);
     } catch (error) {
       console.warn('Failed to cache video:', error);

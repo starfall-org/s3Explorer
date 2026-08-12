@@ -104,8 +104,14 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
       if (isPlaying && !isCached && !isCaching && videoRef.current) {
         try {
           setIsCaching(true);
-          const response = await fetch(url);
+          const response = await fetch(url, { credentials: 'include' });
+          if (!response.ok) {
+            throw new Error(`Media request failed: ${response.status}`);
+          }
           const blob = await response.blob();
+          if (!blob.size) {
+            throw new Error('Media response was empty');
+          }
           await mediaCache.cacheVideo(url, blob);
           setIsCached(true);
           console.log('Video cached successfully:', fileName);

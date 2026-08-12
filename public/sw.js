@@ -1,5 +1,5 @@
 /* Bộ Sưu Tập - Service Worker */
-const CACHE_NAME = 'bosuutap-cache-v1';
+const CACHE_NAME = 'bosuutap-cache-v2';
 const OFFLINE_URL = '/';
 
 self.addEventListener('install', (event) => {
@@ -15,7 +15,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('bosuutap-cache-') && k !== CACHE_NAME).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
