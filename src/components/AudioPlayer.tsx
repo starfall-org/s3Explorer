@@ -241,18 +241,18 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
   return (
     <>
       {!minimized && (
-      <div className="fixed inset-0 bg-slate-950/80 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in">
-      <div className="w-full max-w-md mx-4 bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5">
+      <div className="fixed inset-0 bg-black/55 dark:bg-black/80 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in">
+      <div className="w-full max-w-md mx-4 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden text-foreground">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Database className="w-4 h-4" />
             {isCached ? (
-              <span className="text-green-600">Cached</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">Cached</span>
             ) : isCaching ? (
-              <span className="text-yellow-600">Caching…</span>
+              <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">Caching…</span>
             ) : (
-              <span>Streaming</span>
+              <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">Streaming</span>
             )}
           </div>
           <div className="flex items-center gap-1">

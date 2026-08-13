@@ -306,8 +306,8 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
       className={cn(
         "fixed z-50 overflow-hidden transition-all duration-300",
         isMinimized
-          ? "bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] rounded-xl border border-border bg-card/85 backdrop-blur-xl shadow-2xl ring-1 ring-white/10"
-          : "inset-0 bg-slate-950/80 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center"
+          ? "bottom-4 left-1/2 -translate-x-1/2 w-[min(92vw,640px)] rounded-xl border border-border bg-card/85 backdrop-blur-xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
+          : "inset-0 bg-black/55 dark:bg-black/80 backdrop-blur-md flex items-center justify-center"
       )}
       onMouseMove={() => {
         setShowControls(true);
@@ -327,7 +327,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
           "relative transition-all duration-300",
           isMinimized
             ? "flex items-center gap-3 p-2.5"
-            : "w-full max-w-[min(90vw,1280px)] max-h-[90vh] aspect-video rounded-xl overflow-hidden ring-1 ring-white/10 shadow-2xl bg-black"
+            : "w-full max-w-[min(90vw,1280px)] max-h-[90vh] aspect-video rounded-xl overflow-hidden ring-1 ring-black/10 dark:ring-white/15 shadow-2xl bg-black"
         )}
       >
         {/* Video element - always mounted so playback continues across minimize/expand */}
@@ -358,7 +358,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 bg-black/40 text-white border border-white/20 hover:bg-white/20 hover:border-white/40"
+                className="h-10 w-10 bg-black/50 text-white border border-white/30 hover:bg-white/20 hover:border-white/60"
                 onClick={() => setIsMinimized(true)}
                 aria-label="Minimize player"
               >
@@ -367,7 +367,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 bg-black/40 text-white border border-white/20 hover:bg-white/20 hover:border-white/40"
+                className="h-10 w-10 bg-black/50 text-white border border-white/30 hover:bg-white/20 hover:border-white/60"
                 onClick={onClose}
                 aria-label="Close player"
               >
@@ -378,7 +378,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
             {/* File name */}
             <div
               className={cn(
-                "absolute top-4 left-4 text-white bg-black/40 border border-white/20 backdrop-blur-sm px-3 py-1 rounded-md max-w-[50%] truncate transition-opacity z-10 flex items-center gap-2",
+                "absolute top-4 left-4 text-white bg-black/55 border border-white/25 backdrop-blur-sm px-3 py-1 rounded-md max-w-[50%] truncate transition-opacity z-10 flex items-center gap-2",
                 showControls ? "opacity-100" : "opacity-0"
               )}
             >
@@ -406,7 +406,7 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
             {/* Video controls */}
             <div 
               className={cn(
-                "absolute bottom-0 left-0 right-0 pt-6 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-black/95 via-black/60 to-transparent transition-opacity",
+                "absolute bottom-0 left-0 right-0 pt-6 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-black/95 via-black/55 to-transparent transition-opacity",
                 showControls ? "opacity-100" : "opacity-0"
               )}
             >

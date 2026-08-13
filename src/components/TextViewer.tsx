@@ -74,7 +74,7 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
   const lineCount = content ? content.split('\n').length : 0;
 
   return (
-    <div className="fixed inset-0 bg-slate-950/75 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in p-4">
+    <div className="fixed inset-0 bg-black/55 dark:bg-black/80 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in p-4">
       <div className="w-full max-w-4xl bg-card rounded-xl shadow-2xl flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -123,22 +123,22 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900">
+        <div className="flex-1 overflow-auto bg-card text-card-foreground">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : error ? (
-            <div className="p-8 text-center text-red-600">{error}</div>
+            <div className="p-8 text-center text-destructive">{error}</div>
           ) : (
-            <pre className="p-5 text-sm font-mono text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words leading-relaxed">
+            <pre className="p-5 text-sm font-mono text-foreground whitespace-pre-wrap break-words leading-relaxed">
               {content}
             </pre>
           )}
         </div>
 
         {truncated && (
-          <div className="px-5 py-3 bg-amber-50 border-t border-amber-200 text-xs text-amber-700">
+          <div className="px-5 py-3 bg-amber-500/10 border-t border-amber-500/30 text-xs text-amber-700 dark:text-amber-300">
             This file is larger than 5MB. Showing only the beginning. Download the
             file to view the full content.
           </div>
