@@ -63,11 +63,21 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    Cookies.set('s3Endpoint', endpoint.trim());
-    Cookies.set('s3Apikey', apikey.trim());
-    Cookies.set('s3SecretKey', secretKey);
-    Cookies.set('s3Bucket', bucket.trim());
-    Cookies.set(CONNECTION_MODE_COOKIE, mode);
+
+    // Keep the same persistent cookie policy as the login page. The explicit
+    // path also makes logout reliably remove the cookies again.
+    const cookieOptions = {
+      expires: 30,
+      path: '/',
+      sameSite: 'lax' as const,
+      secure: window.location.protocol === 'https:',
+    };
+
+    Cookies.set('s3Endpoint', endpoint.trim(), cookieOptions);
+    Cookies.set('s3Apikey', apikey.trim(), cookieOptions);
+    Cookies.set('s3SecretKey', secretKey, cookieOptions);
+    Cookies.set('s3Bucket', bucket.trim(), cookieOptions);
+    Cookies.set(CONNECTION_MODE_COOKIE, mode, cookieOptions);
     toast({
       title: 'Saved',
       description: 'Connection settings have been updated.',
@@ -103,11 +113,12 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
   };
 
   const handleLogout = () => {
-    Cookies.remove('s3Endpoint');
-    Cookies.remove('s3Apikey');
-    Cookies.remove('s3SecretKey');
-    Cookies.remove('s3Bucket');
-    Cookies.remove(CONNECTION_MODE_COOKIE);
+    const cookieOptions = { path: '/' };
+    Cookies.remove('s3Endpoint', cookieOptions);
+    Cookies.remove('s3Apikey', cookieOptions);
+    Cookies.remove('s3SecretKey', cookieOptions);
+    Cookies.remove('s3Bucket', cookieOptions);
+    Cookies.remove(CONNECTION_MODE_COOKIE, cookieOptions);
     router.push('/login');
   };
 

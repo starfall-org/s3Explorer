@@ -22,11 +22,21 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    Cookies.set('s3Endpoint', endpoint);
-    Cookies.set('s3Apikey', apikey);
-    Cookies.set('s3SecretKey', secretKey);
-    Cookies.set('s3Bucket', bucket);
-    Cookies.set(CONNECTION_MODE_COOKIE, mode);
+
+    // Use persistent first-party cookies so mobile browsers do not discard
+    // the connection when the browser process/tab is closed.
+    const cookieOptions = {
+      expires: 30,
+      path: '/',
+      sameSite: 'lax' as const,
+      secure: window.location.protocol === 'https:',
+    };
+
+    Cookies.set('s3Endpoint', endpoint.trim(), cookieOptions);
+    Cookies.set('s3Apikey', apikey.trim(), cookieOptions);
+    Cookies.set('s3SecretKey', secretKey, cookieOptions);
+    Cookies.set('s3Bucket', bucket.trim(), cookieOptions);
+    Cookies.set(CONNECTION_MODE_COOKIE, mode, cookieOptions);
     router.push('/');
   };
 
