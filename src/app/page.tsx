@@ -105,7 +105,20 @@ const Index = () => {
       }
     }
 
-    // Close any other open viewer/player so they replace each other
+    // Record the viewer in history FIRST so the Android back button can
+    // close it. Compute from current state (captured by the closure on render)
+    // and push a new entry if no viewer is open, otherwise replace the
+    // existing viewer entry so consecutive opens don't pollute the stack.
+    const viewerWasOpen = !!(
+      selectedVideo || selectedAudio || selectedImage || selectedText
+    );
+    if (viewerWasOpen) {
+      window.history.replaceState({ viewer: true }, '');
+    } else {
+      window.history.pushState({ viewer: true }, '');
+    }
+
+    // Close any other open viewer/player so they replace each other.
     setSelectedImage(null);
     setSelectedText(null);
     if (item.type !== 'video') setSelectedVideo(null);
@@ -192,9 +205,64 @@ const Index = () => {
     }
   };
 
+  // Sync navigation with the browser history stack so the Android hardware
+  // back button behaves like the on-screen back button:
+  //  1. If a media viewer/player is open → close it first.
+  //  2. Otherwise → go back to the previous folder (instead of closing the app).
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state as { viewer?: boolean } | null;
+
+      // Popped entry was a media viewer/player: close it and keep the folder.
+      if (state?.viewer) {
+        setSelectedVideo(null);
+        setSelectedAudio(null);
+        setSelectedImage(null);
+        setSelectedText(null);
+        setIsPlayerMinimized(false);
+        setIsMediaPlaying(false);
+        return;
+      }
+
+      // Otherwise go up one folder level.
+      setCurrentPath((prev) => (prev.length > 0 ? prev.slice(0, -1) : prev));
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const navigateBack = () => {
-    setCurrentPath(currentPath.slice(0, -1));
+    // Go back in browser history (triggers popstate above).
+    window.history.back();
   };
+
+  // Close whatever viewer/player is open and pop its history entry so the
+  // history stack stays in sync with the actual UI.
+  const closeViewer = () => {
+    setSelectedVideo(null);
+    setSelectedAudio(null);
+    setSelectedImage(null);
+    setSelectedText(null);
+    setIsPlayerMinimized(false);
+    setIsMediaPlaying(false);
+    if ((window.history.state as { viewer?: boolean } | null)?.viewer) {
+      window.history.back();
+    }
+  };
+
+  // Push a history entry whenever the user enters a folder (but not on initial load).
+  // We read the *previous* path length from a ref to avoid pushing on mount.
+  const prevPathLenRef = useRef(currentPath.length);
+  useEffect(() => {
+    const prev = prevPathLenRef.current;
+    prevPathLenRef.current = currentPath.length;
+    // Only push state when navigating *into* a folder (length increased)
+    if (prev === 0 && currentPath.length === 0) return; // initial mount
+    if (currentPath.length > prev) {
+      window.history.pushState({ folder: currentPath }, '');
+    }
+  }, [currentPath]);
 
   const refreshList = () => {
     fetchItems();
@@ -416,11 +484,7 @@ const Index = () => {
           onPrevious={playPrevious}
           onMinimizeChange={setIsPlayerMinimized}
           onPlayingChange={setIsMediaPlaying}
-          onClose={() => {
-            setSelectedVideo(null);
-            setIsPlayerMinimized(false);
-            setIsMediaPlaying(false);
-          }}
+          onClose={closeViewer}
         />
       )}
 
@@ -435,11 +499,7 @@ const Index = () => {
           onPrevious={playPrevious}
           onMinimizeChange={setIsPlayerMinimized}
           onPlayingChange={setIsMediaPlaying}
-          onClose={() => {
-            setSelectedAudio(null);
-            setIsPlayerMinimized(false);
-            setIsMediaPlaying(false);
-          }}
+          onClose={closeViewer}
         />
       )}
 
@@ -448,7 +508,7 @@ const Index = () => {
         <TextViewer
           url={selectedText}
           fileName={selectedTextName}
-          onClose={() => setSelectedText(null)}
+          onClose={closeViewer}
         />
       )}
 
@@ -460,7 +520,7 @@ const Index = () => {
               variant="ghost"
               size="icon"
               className="absolute top-4 right-4 text-white hover:bg-white/20"
-              onClick={() => setSelectedImage(null)}
+              onClick={closeViewer}
             >
               <X className="w-6 h-6" />
             </Button>
