@@ -26,7 +26,7 @@ const Login = () => {
     // Use persistent first-party cookies so mobile browsers do not discard
     // the connection when the browser process/tab is closed.
     const cookieOptions = {
-      expires: 30,
+      expires: 365,
       path: '/',
       sameSite: 'lax' as const,
       secure: window.location.protocol === 'https:',

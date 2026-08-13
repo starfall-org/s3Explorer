@@ -67,7 +67,7 @@ const SettingsDialog = ({ open, onOpenChange, onSaved }: SettingsDialogProps) =>
     // Keep the same persistent cookie policy as the login page. The explicit
     // path also makes logout reliably remove the cookies again.
     const cookieOptions = {
-      expires: 30,
+      expires: 365,
       path: '/',
       sameSite: 'lax' as const,
       secure: window.location.protocol === 'https:',
