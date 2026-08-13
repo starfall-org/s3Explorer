@@ -241,8 +241,8 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
   return (
     <>
       {!minimized && (
-      <div className="fixed inset-0 bg-neutral-900/90 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-      <div className="w-full max-w-md mx-4 bg-card rounded-2xl shadow-2xl overflow-hidden">
+      <div className="fixed inset-0 bg-slate-950/80 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in">
+      <div className="w-full max-w-md mx-4 bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -279,7 +279,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
 
         {/* Artwork / icon */}
         <div className="flex flex-col items-center px-6 py-8">
-          <div className="w-36 h-36 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-inner">
+          <div className="w-36 h-36 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 ring-1 ring-primary/20 flex items-center justify-center shadow-inner">
             <Music className="w-16 h-16 text-primary" />
           </div>
           <h2 className="mt-6 text-lg font-semibold text-foreground text-center truncate max-w-full">

@@ -74,7 +74,7 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
   const lineCount = content ? content.split('\n').length : 0;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in p-4">
+    <div className="fixed inset-0 bg-slate-950/75 dark:bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in p-4">
       <div className="w-full max-w-4xl bg-card rounded-xl shadow-2xl flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -123,7 +123,7 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-auto bg-muted">
+        <div className="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900">
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -131,7 +131,7 @@ const TextViewer = ({ url, onClose, fileName = 'file.txt' }: TextViewerProps) =>
           ) : error ? (
             <div className="p-8 text-center text-red-600">{error}</div>
           ) : (
-            <pre className="p-5 text-sm font-mono text-foreground whitespace-pre-wrap break-words leading-relaxed">
+            <pre className="p-5 text-sm font-mono text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words leading-relaxed">
               {content}
             </pre>
           )}
