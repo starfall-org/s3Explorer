@@ -25,11 +25,13 @@ interface VideoPlayerProps {
   fileName?: string;
   autoPlay?: boolean;
   onEnded?: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
   onMinimizeChange?: (minimized: boolean) => void;
   onPlayingChange?: (playing: boolean) => void;
 }
 
-const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnded, onMinimizeChange, onPlayingChange }: VideoPlayerProps) => {
+const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnded, onNext, onPrevious, onMinimizeChange, onPlayingChange }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -267,12 +269,6 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
     }
   };
 
-  const skipTime = (seconds: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime += seconds;
-    }
-  };
-
   const handleSeek = (value: number[]) => {
     if (videoRef.current) {
       videoRef.current.currentTime = value[0];
@@ -449,7 +445,8 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
                     variant="ghost"
                     size="icon"
                     className="text-white hover:bg-white/20"
-                    onClick={() => skipTime(-10)}
+                    onClick={onPrevious}
+                    aria-label="Previous track"
                   >
                     <SkipBack className="w-6 h-6" />
                   </Button>
@@ -458,7 +455,8 @@ const VideoPlayer = ({ url, onClose, fileName = 'Video', autoPlay = false, onEnd
                     variant="ghost"
                     size="icon"
                     className="text-white hover:bg-white/20"
-                    onClick={() => skipTime(10)}
+                    onClick={onNext}
+                    aria-label="Next track"
                   >
                     <SkipForward className="w-6 h-6" />
                   </Button>

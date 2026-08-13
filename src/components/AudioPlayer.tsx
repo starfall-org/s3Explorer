@@ -25,11 +25,13 @@ interface AudioPlayerProps {
   fileName?: string;
   autoPlay?: boolean;
   onEnded?: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
   onMinimizeChange?: (minimized: boolean) => void;
   onPlayingChange?: (playing: boolean) => void;
 }
 
-const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnded, onMinimizeChange, onPlayingChange }: AudioPlayerProps) => {
+const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnded, onNext, onPrevious, onMinimizeChange, onPlayingChange }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -204,12 +206,6 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
     }
   };
 
-  const skipTime = (seconds: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime += seconds;
-    }
-  };
-
   const handleSeek = (value: number[]) => {
     if (audioRef.current) {
       audioRef.current.currentTime = value[0];
@@ -314,8 +310,8 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => skipTime(-10)}
-            aria-label="Back 10 seconds"
+            onClick={onPrevious}
+            aria-label="Previous track"
           >
             <SkipBack className="w-5 h-5" />
           </Button>
@@ -337,8 +333,8 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => skipTime(10)}
-            aria-label="Forward 10 seconds"
+            onClick={onNext}
+            aria-label="Next track"
           >
             <SkipForward className="w-5 h-5" />
           </Button>
@@ -416,7 +412,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
               </p>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => skipTime(-10)} aria-label="Back 10 seconds">
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onPrevious} aria-label="Previous track">
                 <SkipBack className="w-4 h-4" />
               </Button>
               <Button
@@ -435,7 +431,7 @@ const AudioPlayer = ({ url, onClose, fileName = 'Audio', autoPlay = false, onEnd
                   <Play className="w-5 h-5 ml-0.5" />
                 )}
               </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => skipTime(10)} aria-label="Forward 10 seconds">
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onNext} aria-label="Next track">
                 <SkipForward className="w-4 h-4" />
               </Button>
             </div>

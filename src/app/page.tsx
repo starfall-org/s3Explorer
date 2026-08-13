@@ -140,10 +140,23 @@ const Index = () => {
     openMedia(item, isPlayerMinimized && isMediaPlaying);
   };
 
-  // Auto-play the next media item (video/audio) in the current folder when the current one ends
+  // Play the next media item (video/audio) in the current folder.
   const playNext = () => {
     if (currentMediaIndex < 0) return;
     for (let i = currentMediaIndex + 1; i < items.length; i++) {
+      const it = items[i];
+      if (it.type === 'video' || it.type === 'audio') {
+        setCurrentMediaIndex(i);
+        openMedia(it, true);
+        return;
+      }
+    }
+  };
+
+  // Play the previous media item in the current folder.
+  const playPrevious = () => {
+    if (currentMediaIndex < 0) return;
+    for (let i = currentMediaIndex - 1; i >= 0; i--) {
       const it = items[i];
       if (it.type === 'video' || it.type === 'audio') {
         setCurrentMediaIndex(i);
@@ -399,6 +412,8 @@ const Index = () => {
           fileName={selectedVideoName}
           autoPlay={videoAutoPlay}
           onEnded={playNext}
+          onNext={playNext}
+          onPrevious={playPrevious}
           onMinimizeChange={setIsPlayerMinimized}
           onPlayingChange={setIsMediaPlaying}
           onClose={() => {
@@ -416,6 +431,8 @@ const Index = () => {
           fileName={selectedAudioName}
           autoPlay={audioAutoPlay}
           onEnded={playNext}
+          onNext={playNext}
+          onPrevious={playPrevious}
           onMinimizeChange={setIsPlayerMinimized}
           onPlayingChange={setIsMediaPlaying}
           onClose={() => {
