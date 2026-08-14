@@ -48,12 +48,30 @@ const createS3Client = (config: S3Config) => {
   });
 };
 
-// Build a same-origin proxy URL for a file (server connection mode)
-const buildProxyUrl = (key: string): string => {
-  return `/api/s3/proxy?key=${encodeURIComponent(key)}`;
+// Server mode: ask the Next.js API to sign a short-lived presigned URL so the
+// browser streams directly from S3 (Backblaze) instead of running bytes
+// through the Next.js server. This avoids the egress/Class B quota hit on
+// the server's outbound bandwidth.
+const getServerPresignedUrl = async (
+  key: string,
+  expiresIn: number = 3600
+): Promise<string> => {
+  try {
+    const response = await fetch('/api/s3/presign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, expiresIn }),
+    });
+    if (!response.ok) return '';
+    const data = await response.json();
+    return (data.url as string) ?? '';
+  } catch (error) {
+    console.error('Error requesting presigned URL (server):', error);
+    return '';
+  }
 };
 
-// Generate a pre-signed URL using the browser SDK (browser connection mode)
+// Browser mode: sign the URL locally with the user's AWS SDK client.
 const getPresignedUrl = async (
   config: S3Config,
   key: string,
@@ -202,8 +220,12 @@ export const listS3Objects = async (
 };
 
 // Get a URL to access a file's content
-// - Server mode: returns a same-origin proxy URL (no CORS required)
-// - Browser mode: returns a pre-signed URL
+// - Server mode: server signs a short-lived presigned URL; browser streams
+//   directly from S3 (no quota on the Next.js server).
+//   If S3_USE_PROXY_FALLBACK=true on the server, returns a same-origin proxy
+//   URL instead (use this only when the bucket CORS is not configured).
+// - Browser mode: returns a pre-signed URL signed in the browser with the
+//   user's AWS SDK credentials.
 // Pass an optional modeOverride so callers (e.g. connection test) can
 // resolve URLs with a specific mode regardless of the saved cookie.
 export const getS3FileUrl = async (
@@ -213,15 +235,15 @@ export const getS3FileUrl = async (
   const mode = modeOverride ?? getConnectionMode();
 
   if (mode === 'server') {
-    return buildProxyUrl(key);
+    return await getServerPresignedUrl(key, 3600);
   }
 
   try {
     const config = getS3Config();
     return await getPresignedUrl(config, key);
   } catch (error) {
-    console.error("Error getting presigned URL:", error);
-    return "";
+    console.error('Error getting presigned URL:', error);
+    return '';
   }
 };
 

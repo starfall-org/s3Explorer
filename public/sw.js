@@ -1,5 +1,5 @@
 /* Bộ Sưu Tập - Service Worker */
-const CACHE_NAME = 'bosuutap-cache-v2';
+const CACHE_NAME = 'bosuutap-cache-v3';
 const OFFLINE_URL = '/';
 
 self.addEventListener('install', (event) => {
@@ -27,8 +27,11 @@ self.addEventListener('fetch', (event) => {
   // Only handle same-origin GET requests
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // Never cache API / S3 proxy requests
+  // Never cache API requests (they are authed and ephemeral presigned URLs)
   if (url.pathname.startsWith('/api/')) return;
+
+  // Cross-origin media URLs (e.g. presigned Backblaze links) are handled
+  // by the regular browser cache, not by this service worker.
 
   // Network-first for navigations, fall back to cached shell for offline
   if (request.mode === 'navigate') {

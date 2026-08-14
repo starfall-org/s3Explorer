@@ -9,7 +9,9 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const SHARE_EXPIRES_IN = 604800; // 7 days in seconds
+const DEFAULT_EXPIRES_IN = 3600; // 1 hour for playback
+const MAX_EXPIRES_IN = 604800; // hard cap at 7 days to avoid leaking keys forever
+const SHARE_EXPIRES_IN = 604800;
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,8 +34,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const url = await presignS3Object(config, key, SHARE_EXPIRES_IN);
-    return NextResponse.json({ success: true, url, expiresIn: SHARE_EXPIRES_IN });
+    // Allow caller to pick a shorter TTL for media playback. Cap at MAX_EXPIRES_IN
+    // so the route can't be abused to mint long-lived links without auth.
+    const requested = Number(body.expiresIn);
+    const expiresIn =
+      Number.isFinite(requested) && requested > 0
+        ? Math.min(requested, MAX_EXPIRES_IN)
+        : SHARE_EXPIRES_IN;
+    const url = await presignS3Object(config, key, expiresIn);
+    return NextResponse.json({ success: true, url, expiresIn });
   } catch (error) {
     console.error('Error generating presigned URL (server):', error);
     return NextResponse.json({ success: false }, { status: 500 });

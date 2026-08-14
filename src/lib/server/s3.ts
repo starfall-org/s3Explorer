@@ -46,6 +46,9 @@ export function isS3ConfigValid(config: S3Config): boolean {
   );
 }
 
+// Default lifetime for playback presigned URLs (1 hour).
+export const PLAY_URL_EXPIRES = 3600;
+
 // Build a same-origin proxy URL used in server connection mode
 export const buildProxyUrl = (key: string): string =>
   `/api/s3/proxy?key=${encodeURIComponent(key)}`;
@@ -91,9 +94,15 @@ export async function listS3Objects(config: S3Config, path: string): Promise<S3I
         key: content.Key || '',
       };
 
-      // In server mode, files are served through the same-origin proxy (no CORS needed)
+      // In server mode, files are served via a server-signed presigned URL so
+      // the browser streams directly from S3 (no quota on the Next.js server).
+      // If CORS blocks the browser from hitting S3 directly, set
+      // S3_USE_PROXY_FALLBACK=true to fall back to the same-origin proxy.
       if (fileItem.type !== 'folder') {
-        fileItem.url = buildProxyUrl(fileItem.key);
+        const useProxy = process.env.S3_USE_PROXY_FALLBACK === 'true';
+        fileItem.url = useProxy
+          ? buildProxyUrl(fileItem.key)
+          : await presignS3Object(config, fileItem.key, PLAY_URL_EXPIRES);
       }
 
       items.push(fileItem);
